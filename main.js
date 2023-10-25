@@ -99,55 +99,6 @@ function displayScore() {
 }
 
 
-// const loadedWeaponModels = [];
-
-// const gltfLoader = new THREE.GLTFLoader();
-// const weaponModels = [
-//   'crossbow.glb',
-//   'kimber_1911.glb',
-//   // Add more paths to other weapon models as needed
-// ];
-// function loadWeaponModels() {
-//   for (const path of weaponModels) {
-//     gltfLoader.load(path, (gltf) => {
-//       // Log the gltf object to check its structure
-//       console.log('Loaded gltf:', gltf);
-
-//       if (gltf.scene) {
-//         loadedWeaponModels.push(gltf.scene);
-//         console.log('Loaded weapon model:', path);
-//         updateDisplayedWeapon(); // Call the update function after loading each model
-//       } else {
-//         console.error('Failed to load weapon model:', path);
-//       }
-//     },
-//     undefined,
-//     (error) => {
-//       console.error('Error loading weapon model:', path, error);
-//     });
-//   }
-// }
-
-
-
-// let selectedWeaponModel = null;
-
-// function selectWeapon(weaponIndex) {
-//   selectedWeaponModel = weaponIndex - 1; // Adjust index to match array indexing (0-based)
-//   updateDisplayedWeapon();
-// }
-// function updateDisplayedWeapon() {
-//   if (selectedWeaponModel) {
-//       scene.remove(selectedWeaponModel);
-//   }
-
-//   if (selectedWeapon !== null && loadedWeaponModels[selectedWeapon]) {
-//       // Use a simple cube as a placeholder for the weapon
-//       selectedWeaponModel = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshBasicMaterial({ color: 0x00ff00 }));
-//       selectedWeaponModel.position.set(0, 0, -10);
-//       scene.add(selectedWeaponModel);
-//   }
-// }
 
 function initScene() {
 //video
@@ -160,6 +111,7 @@ let insetWidth, insetHeight;
 const clock = new THREE.Clock();
 
 const gameWorld = new THREE.Scene();
+// gameWorld.fog = new THREE.Fog(0xa0a0a0, 10, 50);
 
 const camera = new THREE.PerspectiveCamera(70,aspect,0.01,500);
 
@@ -592,14 +544,6 @@ function parking(){
     buildingPhysicsWorld1.quaternion.setFromEuler(0, Math.PI / 2 , 0);
     physicsWorld.addBody(buildingPhysicsWorld1);
 
-    const buildingPhysicsWorld2 = new CANNON.Body({
-        type : CANNON.Body.STATIC,
-        shape : new CANNON.Box(new CANNON.Vec3(7.6,15,1)),
-    });
-    buildingPhysicsWorld2.position.set(55.2,15,-15);
-    buildingPhysicsWorld2.quaternion.setFromEuler(0, 0 , 0);
-    physicsWorld.addBody(buildingPhysicsWorld2);
-
     const buildingPhysicsWorld3 = new CANNON.Body({
         type : CANNON.Body.STATIC,
         shape : new CANNON.Box(new CANNON.Vec3(8,15,1)),
@@ -615,6 +559,32 @@ function parking(){
     buildingPhysicsWorld4.position.set(17.5,15,-32);
     buildingPhysicsWorld4.quaternion.setFromEuler(0, Math.PI / 2 , 0);
     physicsWorld.addBody(buildingPhysicsWorld4);
+
+    // new physics blocks
+
+    const buildingPhysicsWorld5 = new CANNON.Body({
+        type : CANNON.Body.STATIC,
+        shape : new CANNON.Box(new CANNON.Vec3(20,20,1)),
+    });
+    buildingPhysicsWorld5.position.set(30,6,-30);
+    buildingPhysicsWorld5.quaternion.setFromEuler(Math.PI / 2, 0 , 0);
+    physicsWorld.addBody(buildingPhysicsWorld5);
+
+    const buildingPhysicsWorld6 = new CANNON.Body({
+        type : CANNON.Body.STATIC,
+        shape : new CANNON.Box(new CANNON.Vec3(8,8,1)),
+    });
+    buildingPhysicsWorld6.position.set(55 ,6,-42);
+    buildingPhysicsWorld6.quaternion.setFromEuler(Math.PI / 2, 0 , 0);
+    physicsWorld.addBody(buildingPhysicsWorld6);
+
+    const buildingPhysicsWorld2 = new CANNON.Body({
+        type : CANNON.Body.STATIC,
+        shape : new CANNON.Box(new CANNON.Vec3(7.6,15,1)),
+    });
+    buildingPhysicsWorld2.position.set(55.2,1,-20);
+    buildingPhysicsWorld2.quaternion.setFromEuler(- (70 / 180) * Math.PI, 0 , 0);
+    physicsWorld.addBody(buildingPhysicsWorld2);
     
     const parkWalls = new CANNON.Body({
         type : CANNON.Body.STATIC,
@@ -751,6 +721,96 @@ function parking(){
             object.receiveShadow = true;
         });
         model.scale.set(2,2,1.7);
+
+        new GLTFLoader().load('light.glb', function (gltf) {
+            const light = gltf.scene;
+            light.traverse(function (object) {
+                object.castShadow = true;
+                object.receiveShadow = true;
+            });
+            
+            for (let i = 0; i < 7; i++){
+                const spotLight = new THREE.PointLight(0xffffff, 2)
+                spotLight.position.set(0.7 - (i * 0.2) , 0.1, 0);
+                spotLight.distance = 200;
+                light.add(spotLight);
+                light.add(spotLight.target);
+            }
+
+            model.add(light);
+            light.rotation.set(Math.PI, 0, 0);
+            
+            light.position.set(0,3.4,0);
+        });
+
+        new GLTFLoader().load('light.glb', function (gltf) {
+            const light = gltf.scene;
+            light.traverse(function (object) {
+                object.castShadow = true;
+                object.receiveShadow = true;
+            });
+            
+            for (let i = 0; i < 7; i++){
+                const spotLight = new THREE.PointLight(0xffffff, 2)
+                spotLight.position.set(0.7 - (i * 0.2) , 0.1, 0);
+                spotLight.distance = 200;
+                light.add(spotLight);
+                light.add(spotLight.target);
+            }
+
+            model.add(light);
+            light.rotation.set(Math.PI, 0, 0);
+            
+            light.position.set(-5, 3.4, -5);
+        });
+
+        new GLTFLoader().load('light.glb', function (gltf) {
+            const light = gltf.scene;
+            light.traverse(function (object) {
+                object.castShadow = true;
+                object.receiveShadow = true;
+            });
+
+            model.add(light);
+            light.rotation.set(Math.PI, 0, 0);
+            
+            light.position.set(5, 3.4, -5);
+        });
+
+        new GLTFLoader().load('light.glb', function (gltf) {
+            const light = gltf.scene;
+            light.traverse(function (object) {
+                object.castShadow = true;
+                object.receiveShadow = true;
+            });
+
+            model.add(light);
+            light.rotation.set(Math.PI, 0, 0);
+            
+            light.position.set(-5,3.4,5);
+        });
+
+        new GLTFLoader().load('light.glb', function (gltf) {
+            const light = gltf.scene;
+            light.traverse(function (object) {
+                object.castShadow = true;
+                object.receiveShadow = true;
+            });
+            
+            for (let i = 0; i < 7; i++){
+                const spotLight = new THREE.PointLight(0xffffff, 2)
+                spotLight.position.set(0.7 - (i * 0.2) , 0.1, 0);
+                spotLight.distance = 200;
+                light.add(spotLight);
+                light.add(spotLight.target);
+            }
+
+            model.add(light);
+            light.rotation.set(Math.PI, 0, 0);
+            
+            light.position.set(5, 3.4, 5);
+        });
+
         gameWorld.add(model);
         
         model.position.y = -0.2;
@@ -764,7 +824,7 @@ function parking(){
             object.castShadow = true;
             object.receiveShadow = true;
         });
-        gameWorld.add(model);
+        // gameWorld.add(model);
         
         model.position.y = 6.42;
         model.position.x = -80;
@@ -779,13 +839,11 @@ function parking(){
             object.castShadow = true;
             object.receiveShadow = true;
         });
-        gameWorld.add(model);
+        // gameWorld.add(model);
         
         model.position.y = 6.42;
         model.position.x = -55;
         model.position.z = -50;
-
-        // model.rotation.set(0, Math.PI / 2, 0);
 
         model.scale.set(0.2,0.2,0.2);
 
@@ -1975,7 +2033,7 @@ function extras(){
 ground();
 road();
 light();
-// buildings();
+buildings();
 parking();
 // cars();
 extras();

@@ -147,6 +147,7 @@ export class CharacterControls {
             this.physicsObject.position.z -= moveZ
             this.model.position.x = this.physicsObject.position.x;
             this.model.position.z = this.physicsObject.position.z;
+            this.model.position.y = this.physicsObject.position.y - 1;
             // this.model.quaternion.copy(this.phy.quaternion);
             
             // if (cc - this.physicsObject.position.x != 0 || ccy - this.physicsObject.position.z != 0){
