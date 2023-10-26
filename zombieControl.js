@@ -1,7 +1,9 @@
 import * as THREE from 'three';
+let score = 0;
+let width = 185;
 
 export class ZombieControl {
-
+ 
     constructor(model, mixer, animationsMap, currentAction, physicsObject, bullets) {
         this.physicsObject = physicsObject;
         this.death = false;
@@ -9,7 +11,7 @@ export class ZombieControl {
         this.toggleRun = false;
         this.died = false;
         this.bullets = bullets;
-
+        
         this.model = model;
         this.mixer = mixer;
         this.animationsMap = animationsMap;
@@ -27,13 +29,23 @@ export class ZombieControl {
             }
         });
     }
+  
+      
     distance(position){
+        //reference the health bar
+        const separateBar = document.getElementById('separate-bar');
+      
         const currentPosition = this.model.position.clone();
         const distance = currentPosition.distanceTo(position);
 
         if (distance < 2) {
+
             this.attack = true;
+            //decrease the width of the health bar by 1 when the zombie is within range
+            width-=1;
+            separateBar.style.width = width+'px';
             this.toggleRun = false;
+           
         }
         else if (distance < 50){
             this.toggleRun = true;
@@ -44,8 +56,11 @@ export class ZombieControl {
         }
         
     }
-
+   
     zombieDeath(){
+        //reference the score
+        const scoreElement = document.getElementById('score');
+        
         for(let i = 0; i < this.bullets.length; i++){
             const currentPosition = this.model.position.clone();
             const position = this.bullets[i].position.clone();
@@ -55,16 +70,25 @@ export class ZombieControl {
                 this.death = false;
                 this.attack = false;
                 this.toggleRun = false;
+              
+                
+
             }
             else if (distance < 5){
+             
                 this.attack = false;
                 this.toggleRun = false;
                 this.death = true;
+                //if the zombie is killed then the score increments by 1
+                score+=1;
+                scoreElement.textContent = score;
+         
+                
             }
         }
     }
-
-    update(delta, userPositionX, userPositionZ) {
+   
+      update(delta, userPositionX, userPositionZ) {
 
         var play = '';
         if (this.toggleRun) {
@@ -78,6 +102,7 @@ export class ZombieControl {
         } 
         else if (this.attack){
             play = 'Zombie_Attack_Armature';
+          
         }
         else {
             play = 'Zombie_Walk';
@@ -126,4 +151,5 @@ export class ZombieControl {
             this.model.position.z = this.physicsObject.position.z;
         }
     }
+  
 }

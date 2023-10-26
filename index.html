@@ -42,7 +42,8 @@ h1 {
     #overlayy {
       border: 6px dashed #000;
       padding: 3px;
-      width: 17%;
+      width: 20%;
+      height: 15%;
       position: absolute;
       top: 4px;
       left: 1px;
@@ -57,6 +58,7 @@ h1 {
       top: 10px;
       left: 10px;
       color: black;
+      width: 400px;
       font-family:fantasy;
       font-size: 18px;
       z-index: 1;
@@ -73,6 +75,9 @@ h1 {
       box-sizing: border-box;
     }
     #startButton {
+  position: absolute;
+  top: 250px;
+  left:600px;
   width: 80px; /* Adjust the width to your desired size for a perfect circle */
   height: 80px; /* Should be the same as the width for a perfect circle */
   font-family: fantasy;
@@ -84,24 +89,44 @@ h1 {
   box-shadow: 0 0 0 5px white, 0 0 0 10px yellowgreen; /* Add a white ring with a 5px spread and a 10px gap */
 }
 #otherButton {
+  
   width: 60px; /* Adjust the width to your desired size for a perfect circle */
   height: 60px; /* Should be the same as the width for a perfect circle */
   font-family: fantasy;
   font-size: 24px;
-  background-color: lime;
+  background-color: transparent;
   border: none;
   cursor: pointer;
   border-radius: 50%; /* Make it a circle by setting a border radius of 50% */
-  box-shadow: 0 0 0 5px white, 0 0 0 10px yellowgreen; /* Add a white ring with a 5px spread and a 10px gap */
+  box-shadow: 0 0 0 5px black, 0 0 0 10px black; /* Add a white ring with a 5px spread and a 10px gap */
 }
-
-
-
-
-
-    #startButton:focus {
+#quitButton {
+  width: 60px; /* Adjust the width to your desired size for a perfect circle */
+  height: 60px; /* Should be the same as the width for a perfect circle */
+  font-family: fantasy;
+  font-size: 24px;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  border-radius: 50%; /* Make it a circle by setting a border radius of 50% */
+  box-shadow: 0 0 0 5px black, 0 0 0 10px black;
+ /* box-shadow: 0 0 0 5px white, 0 0 0 10px yellowgreen;  */
+ /* Add a white ring with a 5px spread and a 10px gap */
+}
+#pauseButton {
+  width: 60px; /* Adjust the width to your desired size for a perfect circle */
+  height: 60px; /* Should be the same as the width for a perfect circle */
+  font-family: fantasy;
+  font-size: 24px;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  border-radius: 50%; /* Make it a circle by setting a border radius of 50% */
+  box-shadow: 0 0 0 5px black, 0 0 0 10px black; /* Add a white ring with a 5px spread and a 10px gap */
+}
+ #startButton:focus {
       outline: none;
-    }
+}
     #customButton {
       display: none; /* Initially hide the button */
       position: absolute;
@@ -114,7 +139,7 @@ h1 {
       border: none;
       border-radius: 5px;
       cursor: pointer;
-    }
+}
 
     #customButton:hover {
       background-color: #2980b9;
@@ -131,7 +156,7 @@ h1 {
       color: black; /* Adjusted text color */
       text-align: center;
       line-height: 50px; /* Adjusted line height */
-      font-size: 20px; /* Adjusted font size */
+      font-size: 15px; /* Adjusted font size */
       font-family: fantasy; /* Set the font to fantasy */
       overflow: hidden; /* Hide overflowing parts of the SVG */
     }
@@ -149,33 +174,76 @@ h1 {
   border: 6px dashed #000; /* Black border with 2px width */
   padding: 10px; /* Add some padding around the text */
   position: absolute;
-  width: 50%; /* Position the element relative to its nearest positioned ancestor */
-  top: -450px; /* Distance from the top of the nearest positioned ancestor (e.g., the body) */
+  width: 100%; /* Position the element relative to its nearest positioned ancestor */
+  top: -455px; /* Distance from the top of the nearest positioned ancestor (e.g., the body) */
   right: 1121px;
   font-family: fantasy; /* Distance from the right of the nearest positioned ancestor (e.g., the body) */
 }
+
+#separate-bar-container {
+  position: absolute;
+  top:5px;
+  left:70px;
+  width: 185px;
+  height: 20px;
+  background-color: #ccc;
+  border: 1px solid #000;
+  
+}
+
+#separate-bar {
+  height: 100%;
+  width: 100%; /* Set this to 100% initially to represent a full bar */
+  background-color: black; /* Green color for the bar */
+  position: absolute;
+  top: 0;
+  left: 0;
+  transition: width 0.5s; /* Add a transition for smooth width changes */
+}
+#KillCount {
+    position: absolute; /* Set the positioning type to 'absolute' */
+    top: 50px; /* Change the top position to 100 pixels */
+    left: -70px;
+    width:200px /* Change the left position to 200 pixels */
+  }
+ 
 
 
   </style>
 </head>
 <body>
   <div id="overlay">
-    <h1>Vigilante Vanguard</h1>
+    <h1 id="overlay-heading">Vigilante Vanguard</h1>
   </div>
+  
   <div id="overlayy">
-    
     <div id="healthLabel">Health:</div>
-    <div id="shieldLabel">Shield:</div>
+    <div id="shieldLabel">Score:</div>
+    
+    <div id="separate-bar-container">
+    <div id="separate-bar"></div>
+    <div id="shieldLabel">Oops</div>
+    <div id="score">0</div>
+    <div id="KillCount">Mission : Kill 3 zombies</div>
+
   </div>
+  <div id="pauseIcon" style="display: none;position: relative; top: 100px; left:500px;">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+      <path d="M6 5h4v14H6zm8 0h4v14h-4z" style="fill:white"/>
+    </svg>
+  </div>
+ 
   <!-- <div class="rectangle"></div> -->
 
   <script type="module" src="/main.js"></script>
   <button id="startButton">START</button>
   <div style="position: fixed; bottom: 20px; right: 20px; display: flex; flex-direction: row-reverse;">
-    <div id="scoreDisplay" class="score-display">Score: 0 / 50</div>
+    
 
-    <button id="otherButton" class="circular-button">QUIT</button>
-    <button id="otherButton" class="circular-button pause-icon">
+    <button id="quitButton" class="circular-button" style="font-size: 47px; font-weight: 2000;">&#8634;</button>
+
+
+    <button id="pauseButton" class="circular-button pause-icon">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
         <path d="M6 5h4v14H6zm8 0h4v14h-4z"/>
       </svg>
@@ -188,8 +256,6 @@ h1 {
       </svg>
     </button>
 
-  
-  
 
   <script type="module">
     import * as THREE from 'three';

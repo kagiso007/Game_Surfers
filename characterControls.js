@@ -154,25 +154,8 @@ export class CharacterControls {
             this.model.position.x = this.physicsObject.position.x;
             this.model.position.z = this.physicsObject.position.z;
             this.model.position.y = this.physicsObject.position.y - 1;
-            // if (this.physicsObject.position.y > 1){
-            //     const moveY = this.physicsObject.position.y + (this.veloY * delta) + ((1 / 2) * (-9.8) * (delta * delta));
-            //     this.veloY = this.veloY + ((-9.8) * delta);
-            //     this.updateCameraTarget(moveX, moveZ, moveY);
-            // }
-            // else{
-            //     this.updateCameraTarget(moveX, moveZ, this.camera.position.y);
-            //     this.model.add(this.camera);
-            //     this.camera.position.set(5,5,0);
-            // }
+        
             this.updateCameraTarget(moveX, moveZ, this.camera.position.y);
-                // this.model.add(this.camera);
-                // this.camera.position.set(5,5,0);
-            
-            // this.model.quaternion.copy(this.phy.quaternion);
-            
-            // if (cc - this.physicsObject.position.x != 0 || ccy - this.physicsObject.position.z != 0){
-            
-            // }
         }
     }
 
