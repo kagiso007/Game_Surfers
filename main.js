@@ -147,7 +147,7 @@ function model(){
 const zombies = [];
 
 function zombie(){
-    for (let i = 0; i < 3; i++){
+    for (let i = 0; i < 4; i++){
 
         const cylinder = new CANNON.Cylinder(0.5,0.5,2, 16);
         const cylinderPhysicsWorld1 = new CANNON.Body({
