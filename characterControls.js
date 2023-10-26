@@ -24,11 +24,13 @@ export class CharacterControls {
         this.fadeDuration = 0.2;
         this.runVelocity = 5;
         this.veloY = 5;
+
         this.walkVelocity = 2;
 
         this.orbitControl = orbitControl;
         this.camera = camera;
         this.updateCameraTarget(0, 0, 0);
+
 
         this.animationsMap.forEach((value, key) => {
             if (key == currentAction) {
@@ -122,7 +124,6 @@ export class CharacterControls {
                 this.camera.position.x - this.model.position.x,
                 this.camera.position.z - this.model.position.z
             );
-            
 
             var directionOffset = this.directionOffset(keysPressed);
 
@@ -134,10 +135,13 @@ export class CharacterControls {
             this.model.quaternion.rotateTowards(this.rotateQuarternion, 0.2);
 
             this.camera.getWorldDirection(this.walkDirection);
+
             this.walkDirection.y = Math.atan2(
                 this.camera.position.y - this.model.position.y,
                 this.camera.position.z - this.model.position.z
             );;
+
+            this.walkDirection.y = 0;
             this.walkDirection.normalize();
             this.walkDirection.applyAxisAngle(this.rotateAngle, directionOffset);
 
@@ -145,8 +149,6 @@ export class CharacterControls {
 
             const moveX = this.walkDirection.x * velocity * delta;
             const moveZ = this.walkDirection.z * velocity * delta;
-            // const moveY = this.walkDirection.y * velocity * delta;
-            
             // let cc = this.physicsObject.position.x;
             // let ccy = this.physicsObject.position.z; 
             this.physicsObject.position.x -= moveX
@@ -162,8 +164,6 @@ export class CharacterControls {
     updateCameraTarget(moveX, moveZ, moveY) {
         this.camera.position.x -= moveX;
         this.camera.position.z -= moveZ;
-        // this.camera.position.y = moveY;
-        // console.log(this.camera.position.y + moveY);
 
         this.cameraTop.position.z -= moveZ;
         this.cameraTop.position.x -= moveX;

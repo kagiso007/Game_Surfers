@@ -6,10 +6,9 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import CannonDebugger from 'cannon-es-debugger';
 import * as THREE from 'three';
 import * as CANNON from 'cannon-es';
-import { FontLoader, TextGeometry } from 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.module.js';
+
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
-// import { GLTFLoader } from 'three';
-// import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+
 
 var WIDTH = 200;
 var LENGTH = 200;
@@ -17,16 +16,15 @@ var bullets;
 var positionX = 0;
 var positionZ = 0;
 let widdth=185;
-// main.js
-// Initialize audio context
+
 let isButtonClicked = false;
 let isPlayButtonClicked = false;
 let isReplayButtonClicked = false;
+
 const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 const otherAudioFilePath = 'stranger-things-124008.mp3'; // Replace with the correct path to your other audio file
 let otherAudioBuffer = null;
 let shootingBuffer = null;
-let cube;
 
 
 function loadOtherSound() {
@@ -51,6 +49,7 @@ function playOtherSound() {
     console.error('Other audio buffer not available.');
   }
 }
+
 function loadShootingSound(url) {
   
   const request = new XMLHttpRequest();
@@ -76,24 +75,15 @@ function playShootingSound() {
   }
 }
 
-let font;  // Define a variable to store the loaded font
 
 function initScene() {
-//video
 
-// loadWeaponModels();
 const aspect = window.innerWidth / window.innerHeight;
-
 let insetWidth, insetHeight;
-
 const clock = new THREE.Clock();
-
 const gameWorld = new THREE.Scene();
-
 const camera = new THREE.PerspectiveCamera(70,aspect,0.01,500);
-
 camera.position.set(5, 5, 0);
-
 camera.lookAt(0,0,0);
 camera.name = 'PlayerCam';
 
@@ -101,8 +91,6 @@ camera.name = 'PlayerCam';
 let cameraTop = new THREE.PerspectiveCamera(75,aspect,0.01,1000);
 
 cameraTop.position.set(0, 60, 0);
-
-
 cameraTop.lookAt(0,0,0);
 cameraTop.name = "OverheadCam";
 // camera.add(cameraTop);
@@ -178,114 +166,6 @@ function zombie(){
             zombies.push(zombieControl);
         });
     }
-
-    // const cylinderPhysicsWorld2 = new CANNON.Body({
-    //     mass: 10,
-    //     shape: cylinder, 
-    // });
-    // cylinderPhysicsWorld2.position.set(80,0,-40);
-    
-    // cylinderPhysicsWorld2.angularFactor.set(0,0,0);
-    // physicsWorld.addBody(cylinderPhysicsWorld2);
-
-    // new GLTFLoader().load('zombie.glb', function (gltf) {
-    //     const model = gltf.scene;
-    //     model.traverse(function (object) {
-    //         if (object.isMesh) object.castShadow = true;
-    //     });
-    //     model.scale.set(2,2,2);
-    //     gameWorld.add(model);
-
-    //     const gltfAnimations = gltf.animations;
-    //     const mixer = new THREE.AnimationMixer(model);
-    //     const animationsMap = new Map();
-    //     gltfAnimations.forEach((a) => {
-    //         animationsMap.set(a.name, mixer.clipAction(a));
-    //         console.log(a.name);
-    //     });
-    //     zombieControl1 = new ZombieControl(model, mixer, animationsMap, 'Zombie_Walk', cylinderPhysicsWorld2, bullets);
-    // });
-
-    // const cylinderPhysicsWorld3 = new CANNON.Body({
-    //     mass: 10,
-    //     shape: cylinder, 
-    // });
-    // cylinderPhysicsWorld3.position.set(-40,0,80);
-    
-    // cylinderPhysicsWorld3.angularFactor.set(0,0,0);
-    // physicsWorld.addBody(cylinderPhysicsWorld3);
-
-    // new GLTFLoader().load('zombie.glb', function (gltf) {
-    //     const model = gltf.scene;
-    //     model.traverse(function (object) {
-    //         if (object.isMesh) object.castShadow = true;
-    //     });
-    //     model.scale.set(2,2,2);
-    //     gameWorld.add(model);
-
-    //     const gltfAnimations = gltf.animations;
-    //     const mixer = new THREE.AnimationMixer(model);
-    //     const animationsMap = new Map();
-    //     gltfAnimations.forEach((a) => {
-    //         animationsMap.set(a.name, mixer.clipAction(a));
-    //         console.log(a.name);
-    //     });
-    //     zombieControl2 = new ZombieControl(model, mixer, animationsMap, 'Zombie_Walk', cylinderPhysicsWorld3, bullets);
-    // });
-
-    // const cylinderPhysicsWorld4 = new CANNON.Body({
-    //     mass: 10,
-    //     shape: cylinder, 
-    // });
-    // cylinderPhysicsWorld4.position.set(80,0,-80);
-    
-    // cylinderPhysicsWorld4.angularFactor.set(0,0,0);
-    // physicsWorld.addBody(cylinderPhysicsWorld4);
-
-    // new GLTFLoader().load('zombie.glb', function (gltf) {
-    //     const model = gltf.scene;
-    //     model.traverse(function (object) {
-    //         if (object.isMesh) object.castShadow = true;
-    //     });
-    //     model.scale.set(2,2,2);
-    //     gameWorld.add(model);
-
-    //     const gltfAnimations = gltf.animations;
-    //     const mixer = new THREE.AnimationMixer(model);
-    //     const animationsMap = new Map();
-    //     gltfAnimations.forEach((a) => {
-    //         animationsMap.set(a.name, mixer.clipAction(a));
-    //         console.log(a.name);
-    //     });
-    //     zombieControl3 = new ZombieControl(model, mixer, animationsMap, 'Zombie_Walk', cylinderPhysicsWorld4, bullets);
-    // });
-
-    // const cylinderPhysicsWorld5 = new CANNON.Body({
-    //     mass: 10,
-    //     shape: cylinder, 
-    // });
-    // cylinderPhysicsWorld5.position.set(90,0,40);
-    
-    // cylinderPhysicsWorld5.angularFactor.set(0,0,0);
-    // physicsWorld.addBody(cylinderPhysicsWorld5);
-
-    // new GLTFLoader().load('zombie.glb', function (gltf) {
-    //     const model = gltf.scene;
-    //     model.traverse(function (object) {
-    //         if (object.isMesh) object.castShadow = true;
-    //     });
-    //     model.scale.set(2,2,2);
-    //     gameWorld.add(model);
-
-    //     const gltfAnimations = gltf.animations;
-    //     const mixer = new THREE.AnimationMixer(model);
-    //     const animationsMap = new Map();
-    //     gltfAnimations.forEach((a) => {
-    //         animationsMap.set(a.name, mixer.clipAction(a));
-    //         console.log(a.name);
-    //     });
-    //     zombieControl4 = new ZombieControl(model, mixer, animationsMap, 'Zombie_Walk', cylinderPhysicsWorld5, bullets);
-    // });
 }
 
 const keysPressed = {};
@@ -1652,6 +1532,7 @@ model();
 zombie();
 
 
+
 function wrapAndRepeatTexture(map, piece) {
         map.wrapS = map.wrapT = THREE.RepeatWrapping;
         map.repeat.x = map.repeat.y = piece;
@@ -1691,15 +1572,18 @@ function handlePlayButtonClick() {
 function handleReplayButtonClick() {
     // Set the boolean variable to true when the button is clicked
     isReplayButtonClicked = true;
+  
  
   }
   const overlayHeading = document.getElementById('overlay-heading');
 // const cannonDebugger = new CannonDebugger(gameWorld, physicsWorld, {});
 function animate() {
-    //Chaneg heading when Game has started
+
+    //Change heading when Game has started
     overlayHeading.style.position = 'absolute';
     overlayHeading.style.left = '130px';
-    overlayHeading.textContent = 'Level 1'; 
+    if(overlayHeading.textContent=='Vigilante Vanguard'){
+    overlayHeading.textContent = 'Level 1'; }
     //get references for each button,icon,text element
     const pauseButton = document.getElementById('pauseButton');
     const playButton = document.getElementById('otherButton');
@@ -1708,8 +1592,6 @@ function animate() {
     const separateBar = document.getElementById('separate-bar');
     const scoreElement = document.getElementById('score');
     const KillElement = document.getElementById('KillCount');
-   
-    //handles the button clicks
     pauseButton.addEventListener('click', handlePauseButtonClick);
     playButton.addEventListener('click', handlePlayButtonClick);
     replayButton.addEventListener('click', handleReplayButtonClick);
@@ -1723,14 +1605,20 @@ function animate() {
  
   renderer.setViewport(0, 0, window.innerWidth, window.innerHeight);
 
-  //if score is 3, then move to Level 2
-if(scoreElement.textContent==3){
+
+  //if score is 2, then move to Level 2
+if(scoreElement.textContent==2){
     overlayHeading.textContent = 'Level 2'; 
-    KillElement.textContent = 'Mission : Kill 6 zombies'
+    KillElement.textContent = 'Mission : Kill 4 zombies';
 }
   //if score is 6 then move to level 3
-if(scoreElement.textContent==6){
+if(scoreElement.textContent==4){
     overlayHeading.textContent = 'Level 3'; 
+    KillElement.textContent = 'Mission : Kill 6 zombies';
+}
+if(scoreElement.textContent==6){
+    overlayHeading.textContent = 'WINNER'; 
+
 }
 
 //if the health bar is zero, then end the game and display "game over"
@@ -1740,22 +1628,23 @@ if(scoreElement.textContent==6){
     
     overlayHeading.textContent = 'GAME OVER'; 
     characterControls=false;
-    for (const zombieControl of zombies) {
+    for (let zombieControl of zombies) {
         zombieControl = false;
     }
  }
 
 //handles click of Replay button
  if(isReplayButtonClicked==true){
-    
+
     separateBar.style.width = widdth+'px';
     scoreElement.textContent = 0;
-    isReplayButtonClicked=false;
-   
+    // isReplayButtonClicked=false;
+    KillElement.textContent = 'Mission : Kill 2 zombies';
+    overlayHeading.textContent = 'Level 1';  
 }
 
 //checks if the character is loaded and the pause button is not clicked, if it is clicked then this if statement won't run
-  if (characterControls && isButtonClicked==false) {
+  if (characterControls && isButtonClicked==false && parseFloat(separateBar.style.width) !=0) {
     characterControls.update(mixerUpdateDelta, keysPressed);
     bullets = characterControls.updateBullets(mixerUpdateDelta, gameWorld);
     positionX  = characterControls.getPositionX();
@@ -1767,7 +1656,18 @@ if(scoreElement.textContent==6){
     pauseIcon.style.display = 'block';
   }
 
-  //if the play button is clicked, it unpauses the game
+
+//if the play button is clicked, it unpauses the game
+  if (characterControls && isReplayButtonClicked==true && parseFloat(separateBar.style.width) ===0) {
+    isButtonClicked=false;
+    pauseIcon.style.display = 'none';
+    isPlayButtonClicked=false;
+    characterControls.update(mixerUpdateDelta, keysPressed);
+    bullets = characterControls.updateBullets(mixerUpdateDelta, gameWorld);
+    positionX  = characterControls.getPositionX();
+    positionZ = characterControls.getPositionZ();
+  }
+
   if (characterControls && isPlayButtonClicked==true) {
     isButtonClicked=false;
     pauseIcon.style.display = 'none';
@@ -1777,6 +1677,7 @@ if(scoreElement.textContent==6){
     positionX  = characterControls.getPositionX();
     positionZ = characterControls.getPositionZ();
   }
+
   if (zombies.length !== 0 && isButtonClicked==false){
     for (const zombieControl of zombies) {
         zombieControl.update(mixerUpdateDelta, positionX, positionZ, gameWorld);
@@ -1786,8 +1687,6 @@ if(scoreElement.textContent==6){
     }
   }
 
-
-  
     renderer.setViewport(0, 0, window.innerWidth, window.innerHeight);
     renderer.setClearColor(0xffffff); 
 
@@ -1813,10 +1712,7 @@ if(scoreElement.textContent==6){
         insetWidth + borderWidth,
         insetHeight + borderWidth
     );
-//     const playerGeometry = new THREE.BoxGeometry(1, 1, 1);
-// const playerMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-// const player = new THREE.Mesh(playerGeometry, playerMaterial);
-// gameWorld.add(player);
+
 renderer.setClearColor(0x000000);
     renderer.render(gameWorld, cameraTop);
 
@@ -1836,11 +1732,6 @@ function resize(){
     camera.updateProjectionMatrix();
 
     renderer.setSize(window.innerWidth, window.innerHeight);
-    // healthIndicator.position.set(-aspect * 5 - 10, aspect * 5 - 0.6, -10); // 10cm to the left, 3cm lower
-    // shieldIndicator.position.set(-aspect * 5 - 10.5, aspect * 4.7 - 0.6, -10.5);
-
-    // healthIndicator.scale.set(window.innerWidth / 500, window.innerWidth / 500, 1);
-    // shieldIndicator.scale.set(window.innerWidth / 500, window.innerWidth / 500, 1);
 
     insetWidth = window.innerHeight / 3;
     insetHeight = window.innerHeight / 3;
@@ -1858,16 +1749,15 @@ startButton.addEventListener('click', () => {
  
   
   initScene();
-  // This function starts the scene
   playShootingSound();
   displayScore();
   playOtherSound();
-  // createBloodSplatter();
-  // updateDisplayedWeapon();
-  
-// Play shooting sound when button is pressed
+
 });
 window.addEventListener("resize", resize);
+
+
+
 // CONTROLS
 const orbitControls = new OrbitControls(camera, renderer.domElement);
 orbitControls.enableDamping = true;

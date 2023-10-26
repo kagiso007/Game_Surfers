@@ -23,6 +23,7 @@ export class ZombieControl {
         this.runVelocity = 15;
         this.walkVelocity = 1;
 
+
         this.animationsMap.forEach((value, key) => {
             if (key == currentAction) {
                 value.play();
@@ -30,7 +31,6 @@ export class ZombieControl {
         });
     }
   
-      
     distance(position){
         //reference the health bar
         const separateBar = document.getElementById('separate-bar');
@@ -58,6 +58,7 @@ export class ZombieControl {
         // else if (distance < 50){
         //     this.toggleRun = true;
         // }
+
         else{
             this.attack = false;
             this.toggleRun = false;
@@ -69,6 +70,7 @@ export class ZombieControl {
         //reference the score
         const scoreElement = document.getElementById('score');
         
+
         for(let i = 0; i < this.bullets.length; i++){
             const currentPosition = this.model.position.clone();
             const position = this.bullets[i].position.clone();
@@ -78,7 +80,11 @@ export class ZombieControl {
                 this.death = false;
                 this.attack = false;
                 this.toggleRun = false;
-            }
+                setTimeout(() => {
+                    this.model.visible = false;
+                }, 3000);
+        
+             }
             else if (distance < 5){
                 this.attack = false;
                 this.toggleRun = false;
@@ -106,6 +112,7 @@ export class ZombieControl {
         }
         else {
             play = 'Walking';
+
         }
 
         if (this.currentAction != play) {
@@ -116,6 +123,7 @@ export class ZombieControl {
                 current.setLoop(THREE.LoopOnce);
             }
             current.crossFadeTo(toPlay, this.fadeDuration);
+
             current.fadeOut(this.fadeDuration);
             toPlay.reset().fadeIn(this.fadeDuration).play();
 
@@ -125,6 +133,7 @@ export class ZombieControl {
         this.mixer.update(delta);
         
         if (this.currentAction == 'Running' || this.currentAction == 'Walking') {
+
             var angleYCameraDirection = Math.atan2(
                 userPositionX - this.model.position.x,
                 userPositionZ - this.model.position.z
