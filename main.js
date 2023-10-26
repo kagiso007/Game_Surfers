@@ -113,11 +113,7 @@ const physicsWorld = new CANNON.World({
 });
 
 let characterControls;
-// let zombieControl;
-// let zombieControl1;
-// let zombieControl2;
-// let zombieControl3;
-// let zombieControl4;
+
 function model(){
     const cylinder = new CANNON.Cylinder(0.5,0.5,2, 16);
     const cylinderPhysicsWorld = new CANNON.Body({
@@ -129,7 +125,7 @@ function model(){
     cylinderPhysicsWorld.angularFactor.set(0,0,0);
     physicsWorld.addBody(cylinderPhysicsWorld);
 
-    new GLTFLoader().load('holdingAGun.glb', function (gltf) {
+    new GLTFLoader().load('gunHolding.glb', function (gltf) {
         const model = gltf.scene;
         model.traverse(function (object) {
             if (object.isMesh) object.castShadow = true;
@@ -146,33 +142,42 @@ function model(){
         });
         characterControls = new CharacterControls(model, mixer, animationsMap, orbitControls, camera, 'Idle', cylinderPhysicsWorld, cameraTop);
     });
+}
 
-    // const cylinderPhysicsWorld1 = new CANNON.Body({
-    //     mass: 10,
-    //     shape: cylinder, 
-    // });
-    // cylinderPhysicsWorld1.position.set(-40,0,-40);
+const zombies = [];
+
+function zombie(){
+    for (let i = 0; i < 3; i++){
+
+        const cylinder = new CANNON.Cylinder(0.5,0.5,2, 16);
+        const cylinderPhysicsWorld1 = new CANNON.Body({
+            mass: 10,
+            shape: cylinder, 
+        });
+        cylinderPhysicsWorld1.position.set(-40 + (40 * i),0,-40);
+        
+        cylinderPhysicsWorld1.angularFactor.set(0,0,0);
+        physicsWorld.addBody(cylinderPhysicsWorld1);
     
-    // cylinderPhysicsWorld1.angularFactor.set(0,0,0);
-    // physicsWorld.addBody(cylinderPhysicsWorld1);
-
-    // new GLTFLoader().load('zombie.glb', function (gltf) {
-    //     const model = gltf.scene;
-    //     model.traverse(function (object) {
-    //         if (object.isMesh) object.castShadow = true;
-    //     });
-    //     model.scale.set(2,2,2);
-    //     gameWorld.add(model);
-
-    //     const gltfAnimations = gltf.animations;
-    //     const mixer = new THREE.AnimationMixer(model);
-    //     const animationsMap = new Map();
-    //     gltfAnimations.forEach((a) => {
-    //         animationsMap.set(a.name, mixer.clipAction(a));
-    //         console.log(a.name);
-    //     });
-    //     zombieControl = new ZombieControl(model, mixer, animationsMap, 'Zombie_Walk', cylinderPhysicsWorld1, bullets);
-    // });
+        new GLTFLoader().load('zombie.glb', function (gltf) {
+            const model = gltf.scene;
+            model.traverse(function (object) {
+                if (object.isMesh) object.castShadow = true;
+            });
+            model.scale.set(1.5,1.5,1.5);
+            gameWorld.add(model);
+    
+            const gltfAnimations = gltf.animations;
+            const mixer = new THREE.AnimationMixer(model);
+            const animationsMap = new Map();
+            gltfAnimations.forEach((a) => {
+                animationsMap.set(a.name, mixer.clipAction(a));
+                console.log(a.name);
+            });
+            const zombieControl = new ZombieControl(model, mixer, animationsMap, 'Walking', cylinderPhysicsWorld1, bullets);
+            zombies.push(zombieControl);
+        });
+    }
 
     // const cylinderPhysicsWorld2 = new CANNON.Body({
     //     mass: 10,
@@ -1641,9 +1646,10 @@ ground();
 // road();
 light();
 // buildings();
-parking();
+// parking();
 // extras();
 model();
+zombie();
 
 
 function wrapAndRepeatTexture(map, piece) {
@@ -1688,7 +1694,7 @@ function handleReplayButtonClick() {
  
   }
   const overlayHeading = document.getElementById('overlay-heading');
-const cannonDebugger = new CannonDebugger(gameWorld, physicsWorld, {});
+// const cannonDebugger = new CannonDebugger(gameWorld, physicsWorld, {});
 function animate() {
     //Chaneg heading when Game has started
     overlayHeading.style.position = 'absolute';
@@ -1710,7 +1716,7 @@ function animate() {
 
 
     physicsWorld.fixedStep();
-    cannonDebugger.update();
+    // cannonDebugger.update();
     const mixerUpdateDelta = clock.getDelta();
     renderer.render(gameWorld, camera);
     requestAnimationFrame(animate);
@@ -1734,9 +1740,9 @@ if(scoreElement.textContent==6){
     
     overlayHeading.textContent = 'GAME OVER'; 
     characterControls=false;
-    zombieControl=false;
-    zombieControl1=false;
-    zombieControl2=false;
+    for (const zombieControl of zombies) {
+        zombieControl = false;
+    }
  }
 
 //handles click of Replay button
@@ -1771,40 +1777,17 @@ if(scoreElement.textContent==6){
     positionX  = characterControls.getPositionX();
     positionZ = characterControls.getPositionZ();
   }
-  //if the zombies are loaded and the pause button is not clicked
-    // if(zombieControl && isButtonClicked==false) {
-    //     zombieControl.update(mixerUpdateDelta, positionX, positionZ);
-    //     zombieControl.distance(new THREE.Vector3(positionX, 0, positionZ));
-    //     zombieControl.zombieDeath();
-    // }
- 
-
-    // if(zombieControl1 && isButtonClicked==false) {
-    //     zombieControl1.update(mixerUpdateDelta, positionX, positionZ);
-    //     zombieControl1.distance(new THREE.Vector3(positionX, 0, positionZ));
-    //     zombieControl1.zombieDeath();
-    // }
+  if (zombies.length !== 0 && isButtonClicked==false){
+    for (const zombieControl of zombies) {
+        zombieControl.update(mixerUpdateDelta, positionX, positionZ, gameWorld);
+        zombieControl.distance(new THREE.Vector3(positionX, 0, positionZ));
+        zombieControl.zombieDeath();
+        // console.log(zombieControl.model);
+    }
+  }
 
 
-    // if(zombieControl2 && isButtonClicked==false) {
-    //     zombieControl2.update(mixerUpdateDelta, positionX, positionZ);
-    //     zombieControl2.distance(new THREE.Vector3(positionX, 0, positionZ));
-    //     zombieControl2.zombieDeath();
-
-
- 
-    // }
-    // if(zombieControl3) {
-    //     zombieControl3.update(mixerUpdateDelta, positionX, positionZ);
-    //     zombieControl3.distance(new THREE.Vector3(positionX, 0, positionZ));
-    //     zombieControl3.zombieDeath();
-    // }
-    // if(zombieControl4) {
-    //     zombieControl4.update(mixerUpdateDelta, positionX, positionZ);
-    //     zombieControl4.distance(new THREE.Vector3(positionX, 0, positionZ));
-    //     zombieControl4.zombieDeath();
-    // }
-
+  
     renderer.setViewport(0, 0, window.innerWidth, window.innerHeight);
     renderer.setClearColor(0xffffff); 
 

@@ -162,7 +162,7 @@ export class CharacterControls {
     updateCameraTarget(moveX, moveZ, moveY) {
         this.camera.position.x -= moveX;
         this.camera.position.z -= moveZ;
-        this.camera.position.y = moveY;
+        // this.camera.position.y = moveY;
         // console.log(this.camera.position.y + moveY);
 
         this.cameraTop.position.z -= moveZ;
