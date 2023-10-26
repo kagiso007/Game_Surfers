@@ -1,128 +1,279 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
+<head lang="en">
+  <meta charset="utf-8">
+  <title>My Three.js App</title>
+  <style>
+body {
+  margin: 0;
+ 
+  background: url('giphy.gif') no-repeat center center fixed;
+  background-size: 70%; /* Adjust the percentage as needed */
+  background-color: black;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
+h1 {
+      text-align: center;
+      font-family: fantasy;
+      font-size: 50px;
+      font-weight: normal;
+      margin-top: 20px;
+      margin: 0 auto;
+      transform: translateX(425px);
+      animation: colorSwitch 1s infinite alternate; /* Apply the animation */
+    }
+    
+    @keyframes colorSwitch {
+      0% {
+        color: white;
+      }
+      50% {
+        color: lime;
+      }
+      100% {
+        color: white;
+      }
+    }
+ 
 
-<head>
+    #overlayy {
+      border: 6px dashed #000;
+      padding: 3px;
+      width: 20%;
+      height: 15%;
+      position: absolute;
+      top: 4px;
+      left: 1px;
+      color: black;
+      font-family:fantasy;
+      font-size: 18px;
+      z-index: 1;
+    }
+    #overlay {
+      
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      color: black;
+      width: 400px;
+      font-family:fantasy;
+      font-size: 18px;
+      z-index: 1;
+    }
+    .rectangle {
+      width: 215px; /* Adjust width as needed */
+      height: 70px; /* Adjust height as needed */
+      /* background-color: blue; Adjust color as needed */
+      position: absolute;
+      top: 6%;
+      left: 8.5%;
+      transform: translate(-50%, -50%);
+      border: 2px solid black; /* Adjust border properties as needed */
+      box-sizing: border-box;
+    }
+    #startButton {
+  position: absolute;
+  top: 250px;
+  left:600px;
+  width: 80px; /* Adjust the width to your desired size for a perfect circle */
+  height: 80px; /* Should be the same as the width for a perfect circle */
+  font-family: fantasy;
+  font-size: 24px;
+  background-color: lime;
+  border: none;
+  cursor: pointer;
+  border-radius: 50%; /* Make it a circle by setting a border radius of 50% */
+  box-shadow: 0 0 0 5px white, 0 0 0 10px yellowgreen; /* Add a white ring with a 5px spread and a 10px gap */
+}
+#otherButton {
+  
+  width: 60px; /* Adjust the width to your desired size for a perfect circle */
+  height: 60px; /* Should be the same as the width for a perfect circle */
+  font-family: fantasy;
+  font-size: 24px;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  border-radius: 50%; /* Make it a circle by setting a border radius of 50% */
+  box-shadow: 0 0 0 5px black, 0 0 0 10px black; /* Add a white ring with a 5px spread and a 10px gap */
+}
+#quitButton {
+  width: 60px; /* Adjust the width to your desired size for a perfect circle */
+  height: 60px; /* Should be the same as the width for a perfect circle */
+  font-family: fantasy;
+  font-size: 24px;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  border-radius: 50%; /* Make it a circle by setting a border radius of 50% */
+  box-shadow: 0 0 0 5px black, 0 0 0 10px black;
+ /* box-shadow: 0 0 0 5px white, 0 0 0 10px yellowgreen;  */
+ /* Add a white ring with a 5px spread and a 10px gap */
+}
+#pauseButton {
+  width: 60px; /* Adjust the width to your desired size for a perfect circle */
+  height: 60px; /* Should be the same as the width for a perfect circle */
+  font-family: fantasy;
+  font-size: 24px;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  border-radius: 50%; /* Make it a circle by setting a border radius of 50% */
+  box-shadow: 0 0 0 5px black, 0 0 0 10px black; /* Add a white ring with a 5px spread and a 10px gap */
+}
+ #startButton:focus {
+      outline: none;
+}
+    #customButton {
+      display: none; /* Initially hide the button */
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      padding: 10px 20px;
+      font-size: 18px;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+}
 
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <!--favicon -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <link rel="apple-touch-icon" sizes="180x180" href="../../css/favicon/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="../../css/favicon/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="../../css/favicon/favicon-16x16.png">
-    <link rel="manifest" href="../../css/favicon/site.webmanifest">
-    <link rel="mask-icon" href="../../css/favicon/safari-pinned-tab.svg" color="#5bbad5">
-    <meta name="msapplication-TileColor" content="#da532c">
-    <meta name="theme-color" content="#ffffff">
+    #customButton:hover {
+      background-color: #2980b9;
+    }
+  
+    .circular-button {
+      position: relative;
+      border-radius: 50%;
+      width: 60px; /* Adjusted width */
+      height: 60px; /* Adjusted height */
+      margin-left: 5px; /* Adjusted margin */
+      border: 2px solid white;
+      background-color: lime;
+      color: black; /* Adjusted text color */
+      text-align: center;
+      line-height: 50px; /* Adjusted line height */
+      font-size: 15px; /* Adjusted font size */
+      font-family: fantasy; /* Set the font to fantasy */
+      overflow: hidden; /* Hide overflowing parts of the SVG */
+    }
 
-    <style>
-        body {
-            margin: 0;
-            background-color: #000;
-        }
+    .pause-icon svg {
+      width: 100%;
+      height: 100%;
+    }
+    .play-icon svg {
+      width: 100%;
+      height: 100%;
+    }
+    .score-display {
+  
+  border: 6px dashed #000; /* Black border with 2px width */
+  padding: 10px; /* Add some padding around the text */
+  position: absolute;
+  width: 100%; /* Position the element relative to its nearest positioned ancestor */
+  top: -455px; /* Distance from the top of the nearest positioned ancestor (e.g., the body) */
+  right: 1121px;
+  font-family: fantasy; /* Distance from the right of the nearest positioned ancestor (e.g., the body) */
+}
 
-        #ui {
-            position: absolute;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            padding: 10px;
-            display: none;
-        }
+#separate-bar-container {
+  position: absolute;
+  top:5px;
+  left:70px;
+  width: 185px;
+  height: 20px;
+  background-color: #ccc;
+  border: 1px solid #000;
+  
+}
 
-        #ammo {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            height: 40px;
-            width: 160px;
-            display: flex;
-            align-items: center;
-        }
+#separate-bar {
+  height: 100%;
+  width: 100%; /* Set this to 100% initially to represent a full bar */
+  background-color: black; /* Green color for the bar */
+  position: absolute;
+  top: 0;
+  left: 0;
+  transition: width 0.5s; /* Add a transition for smooth width changes */
+}
+#KillCount {
+    position: absolute; /* Set the positioning type to 'absolute' */
+    top: 50px; /* Change the top position to 100 pixels */
+    left: -70px;
+    width:200px /* Change the left position to 200 pixels */
+  }
+ 
 
-        #health {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            width: 160px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-        }
 
-        .icon {
-            width: 30px;
-            height: 30px;
-            padding: 10px;
-        }
-
-        .progressBase {
-            width: 100px;
-            height: 15px;
-            background-color: white;
-            border-radius: 10px;
-        }
-
-        .progressBar {
-            width: 100%;
-            height: 15px;
-            background-color: sienna;
-            border-radius: 10px;
-        }
-
-        #playBtn {
-            position: absolute;
-            bottom: 80px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: none;
-        }
-
-        #gameover {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            display: none;
-        }
-    </style>
-
-    <title>Shooter</title>
+  </style>
 </head>
-
 <body>
-    <script type="module">
-        import { Game } from './game/Game.js';
+  <div id="overlay">
+    <h1 id="overlay-heading">Vigilante Vanguard</h1>
+  </div>
+  
+  <div id="overlayy">
+    <div id="healthLabel">Health:</div>
+    <div id="shieldLabel">Score:</div>
+    
+    <div id="separate-bar-container">
+    <div id="separate-bar"></div>
+    <div id="shieldLabel">Oops</div>
+    <div id="score">0</div>
+    <div id="KillCount">Mission : Kill 2 zombies</div>
+    
 
-        document.addEventListener("DOMContentLoaded", () => {
-            const game = new Game();
-            window.game = game;
-        });
-    </script>
-    <div id='ui'>
-        <div id='ammo'>
-            <div class='icon'>
-                <img src='../../assets/factory/ammo.svg' alt='ammo-icon'>
-            </div>
-            <div class="progressBase">
-                <div class="progressBar" name="ammoBar"></div>
-            </div>
-        </div>
-        <div id='health'>
-            <div class="progressBase">
-                <div class="progressBar" name="healthBar"></div>
-            </div>
-            <div class='icon'>
-                <img src='../../assets/factory/health.svg' alt='health-icon'>
-            </div>
-        </div>
-        <div id='playBtn'>
-            <img src='../../assets/factory/playgame.png' alt='play game'>
-        </div>
-        <div id='gameover'>
-            <img src='../../assets/factory/gameover.png' alt='gameover'>
-        </div>
-    </div>
+  </div>
+  <div id="pauseIcon" style="display: none;position: relative; top: 100px; left:500px;">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+      <path d="M6 5h4v14H6zm8 0h4v14h-4z" style="fill:white"/>
+    </svg>
+  </div>
+ 
+  <!-- <div class="rectangle"></div> -->
+
+  <script type="module" src="/main.js"></script>
+  <button id="startButton">START</button>
+  <div style="position: fixed; bottom: 20px; right: 20px; display: flex; flex-direction: row-reverse;">
+    
+
+    <button id="quitButton" class="circular-button" style="font-size: 47px; font-weight: 2000;">&#8634;</button>
+
+
+    <button id="pauseButton" class="circular-button pause-icon">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+        <path d="M6 5h4v14H6zm8 0h4v14h-4z"/>
+      </svg>
+    </button>
+    
+    
+    <button id="otherButton" class="circular-button play-icon">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+        <path d="M8 5v14l11-7z"/>
+      </svg>
+    </button>
+
+
+  <script type="module">
+    import * as THREE from 'three';
+    import { initScene, loadShootingSound, playShootingSound,  loadOtherSound, playOtherSound} from './main.js';
+    
+loadShootingSound('12-Gauge-Pump-Action-Shotgun-Far-Gunshot-B-www.fesliyanstudios.com.mp3')
+loadOtherSound('stranger-things-124008.mp3')
+   
+const startButton = document.getElementById('startButton');
+    startButton.addEventListener('click', () => {
+      startButton.style.display = 'none';
+      initScene();
+      playShootingSound();
+      playOtherSound();
+      // This function starts the scene
+    });
+  </script>
+  
 </body>
-
 </html>
