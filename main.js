@@ -6,6 +6,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import CannonDebugger from 'cannon-es-debugger';
 import * as THREE from 'three';
 import * as CANNON from 'cannon-es';
+
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
 
 
@@ -19,12 +20,11 @@ let widdth=185;
 let isButtonClicked = false;
 let isPlayButtonClicked = false;
 let isReplayButtonClicked = false;
-// Initialize audio context
+
 const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 const otherAudioFilePath = 'stranger-things-124008.mp3'; // Replace with the correct path to your other audio file
 let otherAudioBuffer = null;
 let shootingBuffer = null;
-
 
 
 function loadOtherSound() {
@@ -38,7 +38,6 @@ function loadOtherSound() {
   });
 }
 
-//This function plays adventure music during the game
 function playOtherSound() {
   if (otherAudioBuffer) {
     const source = audioContext.createBufferSource();
@@ -51,7 +50,6 @@ function playOtherSound() {
   }
 }
 
-//This function loads the shooting sound for when the START button is clicked
 function loadShootingSound(url) {
   
   const request = new XMLHttpRequest();
@@ -68,7 +66,6 @@ function loadShootingSound(url) {
   request.send();
 }
 
-//This function plays the shooting sound when the START button is clicked
 function playShootingSound() {
   if (shootingBuffer) {
     const source = audioContext.createBufferSource();
@@ -92,24 +89,20 @@ camera.name = 'PlayerCam';
 
 // CAM2
 let cameraTop = new THREE.PerspectiveCamera(75,aspect,0.01,1000);
+
 cameraTop.position.set(0, 60, 0);
 cameraTop.lookAt(0,0,0);
 cameraTop.name = "OverheadCam";
 // camera.add(cameraTop);
 gameWorld.add(camera);
 
-
 const physicsWorld = new CANNON.World({
     gravity : new CANNON.Vec3(0, -9.8, 0)
 });
 
 let characterControls;
-let zombieControl;
-let zombieControl1;
-let zombieControl2;
-let zombieControl3;
-let zombieControl4;
- function model(){
+
+function model(){
     const cylinder = new CANNON.Cylinder(0.5,0.5,2, 16);
     const cylinderPhysicsWorld = new CANNON.Body({
         mass: 10,
@@ -137,144 +130,42 @@ let zombieControl4;
         });
         characterControls = new CharacterControls(model, mixer, animationsMap, orbitControls, camera, 'Idle', cylinderPhysicsWorld, cameraTop);
     });
+}
 
-    const cylinderPhysicsWorld1 = new CANNON.Body({
-        mass: 10,
-        shape: cylinder, 
-    });
-    cylinderPhysicsWorld1.position.set(-40,0,-40);
+const zombies = [];
+
+function zombie(){
+    for (let i = 0; i < 4; i++){
+
+        const cylinder = new CANNON.Cylinder(0.5,0.5,2, 16);
+        const cylinderPhysicsWorld1 = new CANNON.Body({
+            mass: 10,
+            shape: cylinder, 
+        });
+        cylinderPhysicsWorld1.position.set(-40 + (40 * i),0,-40);
+        
+        cylinderPhysicsWorld1.angularFactor.set(0,0,0);
+        physicsWorld.addBody(cylinderPhysicsWorld1);
     
-    cylinderPhysicsWorld1.angularFactor.set(0,0,0);
-    physicsWorld.addBody(cylinderPhysicsWorld1);
-
-    new GLTFLoader().load('zombie.glb', function (gltf) {
-        const model = gltf.scene;
-        model.traverse(function (object) {
-            if (object.isMesh) object.castShadow = true;
-        });
-        model.scale.set(2,2,2);
-        gameWorld.add(model);
-
-        const gltfAnimations = gltf.animations;
-        const mixer = new THREE.AnimationMixer(model);
-        const animationsMap = new Map();
-        gltfAnimations.forEach((a) => {
-            animationsMap.set(a.name, mixer.clipAction(a));
-            console.log(a.name);
-        });
-        zombieControl = new ZombieControl(model, mixer, animationsMap, 'Zombie_Walk', cylinderPhysicsWorld1, bullets);
-    });
-
-    const cylinderPhysicsWorld2 = new CANNON.Body({
-        mass: 10,
-        shape: cylinder, 
-    });
-    cylinderPhysicsWorld2.position.set(80,0,-40);
+        new GLTFLoader().load('zombie.glb', function (gltf) {
+            const model = gltf.scene;
+            model.traverse(function (object) {
+                if (object.isMesh) object.castShadow = true;
+            });
+            model.scale.set(1.5,1.5,1.5);
+            gameWorld.add(model);
     
-    cylinderPhysicsWorld2.angularFactor.set(0,0,0);
-    physicsWorld.addBody(cylinderPhysicsWorld2);
-
-    new GLTFLoader().load('zombie.glb', function (gltf) {
-        const model = gltf.scene;
-        model.traverse(function (object) {
-            if (object.isMesh) object.castShadow = true;
+            const gltfAnimations = gltf.animations;
+            const mixer = new THREE.AnimationMixer(model);
+            const animationsMap = new Map();
+            gltfAnimations.forEach((a) => {
+                animationsMap.set(a.name, mixer.clipAction(a));
+                console.log(a.name);
+            });
+            const zombieControl = new ZombieControl(model, mixer, animationsMap, 'Walking', cylinderPhysicsWorld1, bullets);
+            zombies.push(zombieControl);
         });
-        model.scale.set(2,2,2);
-        gameWorld.add(model);
-
-        const gltfAnimations = gltf.animations;
-        const mixer = new THREE.AnimationMixer(model);
-        const animationsMap = new Map();
-        gltfAnimations.forEach((a) => {
-            animationsMap.set(a.name, mixer.clipAction(a));
-            console.log(a.name);
-        });
-        zombieControl1 = new ZombieControl(model, mixer, animationsMap, 'Zombie_Walk', cylinderPhysicsWorld2, bullets);
-    });
-
-    const cylinderPhysicsWorld3 = new CANNON.Body({
-        mass: 10,
-        shape: cylinder, 
-    });
-    cylinderPhysicsWorld3.position.set(-40,0,80);
-    
-    cylinderPhysicsWorld3.angularFactor.set(0,0,0);
-    physicsWorld.addBody(cylinderPhysicsWorld3);
-
-    new GLTFLoader().load('zombie.glb', function (gltf) {
-        const model = gltf.scene;
-        model.traverse(function (object) {
-            if (object.isMesh) object.castShadow = true;
-        });
-        model.scale.set(2,2,2);
-        gameWorld.add(model);
-
-        const gltfAnimations = gltf.animations;
-        const mixer = new THREE.AnimationMixer(model);
-        const animationsMap = new Map();
-        gltfAnimations.forEach((a) => {
-            animationsMap.set(a.name, mixer.clipAction(a));
-            console.log(a.name);
-        });
-        zombieControl2 = new ZombieControl(model, mixer, animationsMap, 'Zombie_Walk', cylinderPhysicsWorld3, bullets);
-    });
-
-
-
-    const cylinderPhysicsWorld4 = new CANNON.Body({
-        mass: 10,
-        shape: cylinder, 
-    });
-    cylinderPhysicsWorld4.position.set(80,0,-80);
-    
-    cylinderPhysicsWorld4.angularFactor.set(0,0,0);
-    physicsWorld.addBody(cylinderPhysicsWorld4);
-
-    new GLTFLoader().load('zombie.glb', function (gltf) {
-        const model = gltf.scene;
-        model.traverse(function (object) {
-            if (object.isMesh) object.castShadow = true;
-        });
-        model.scale.set(2,2,2);
-        gameWorld.add(model);
-
-        const gltfAnimations = gltf.animations;
-        const mixer = new THREE.AnimationMixer(model);
-        const animationsMap = new Map();
-        gltfAnimations.forEach((a) => {
-            animationsMap.set(a.name, mixer.clipAction(a));
-            console.log(a.name);
-        });
-        zombieControl3 = new ZombieControl(model, mixer, animationsMap, 'Zombie_Walk', cylinderPhysicsWorld4, bullets);
-    });
-
-    const cylinderPhysicsWorld5 = new CANNON.Body({
-        mass: 10,
-        shape: cylinder, 
-    });
-    cylinderPhysicsWorld5.position.set(90,0,40);
-    
-    cylinderPhysicsWorld5.angularFactor.set(0,0,0);
-    physicsWorld.addBody(cylinderPhysicsWorld5);
-
-    new GLTFLoader().load('zombie.glb', function (gltf) {
-        const model = gltf.scene;
-        model.traverse(function (object) {
-            if (object.isMesh) object.castShadow = true;
-        });
-        model.scale.set(2,2,2);
-        gameWorld.add(model);
-
-        const gltfAnimations = gltf.animations;
-        const mixer = new THREE.AnimationMixer(model);
-        const animationsMap = new Map();
-        gltfAnimations.forEach((a) => {
-            animationsMap.set(a.name, mixer.clipAction(a));
-            console.log(a.name);
-        });
-        zombieControl4 = new ZombieControl(model, mixer, animationsMap, 'Zombie_Walk', cylinderPhysicsWorld5, bullets);
-    });
-    
+    }
 }
 
 const keysPressed = {};
@@ -337,6 +228,7 @@ function ground() {
     skybox.rotation.set(0, Math.PI / 2, 0);
     gameWorld.add(skybox);
 }
+
 function road(){
     const textureLoader = new THREE.TextureLoader();
 
@@ -507,14 +399,6 @@ function parking(){
     buildingPhysicsWorld1.quaternion.setFromEuler(0, Math.PI / 2 , 0);
     physicsWorld.addBody(buildingPhysicsWorld1);
 
-    const buildingPhysicsWorld2 = new CANNON.Body({
-        type : CANNON.Body.STATIC,
-        shape : new CANNON.Box(new CANNON.Vec3(7.6,15,1)),
-    });
-    buildingPhysicsWorld2.position.set(55.2,15,-15);
-    buildingPhysicsWorld2.quaternion.setFromEuler(0, 0 , 0);
-    physicsWorld.addBody(buildingPhysicsWorld2);
-
     const buildingPhysicsWorld3 = new CANNON.Body({
         type : CANNON.Body.STATIC,
         shape : new CANNON.Box(new CANNON.Vec3(8,15,1)),
@@ -659,6 +543,30 @@ function parking(){
     parkWall7.quaternion.setFromEuler(0, 0, 0);
     physicsWorld.addBody(parkWall7);
 
+    const buildingPhysicsWorld5 = new CANNON.Body({
+        type : CANNON.Body.STATIC,
+        shape : new CANNON.Box(new CANNON.Vec3(20,20,1)),
+    });
+    buildingPhysicsWorld5.position.set(30,6,-30);
+    buildingPhysicsWorld5.quaternion.setFromEuler(Math.PI / 2, 0 , 0);
+    physicsWorld.addBody(buildingPhysicsWorld5);
+
+    const buildingPhysicsWorld6 = new CANNON.Body({
+        type : CANNON.Body.STATIC,
+        shape : new CANNON.Box(new CANNON.Vec3(8,8,1)),
+    });
+    buildingPhysicsWorld6.position.set(55 ,6,-42);
+    buildingPhysicsWorld6.quaternion.setFromEuler(Math.PI / 2, 0 , 0);
+    physicsWorld.addBody(buildingPhysicsWorld6);
+
+    const buildingPhysicsWorld2 = new CANNON.Body({
+        type : CANNON.Body.STATIC,
+        shape : new CANNON.Box(new CANNON.Vec3(7.6,15,1)),
+    });
+    buildingPhysicsWorld2.position.set(55.2,1,-20);
+    buildingPhysicsWorld2.quaternion.setFromEuler(- (70 / 180) * Math.PI, 0 , 0);
+    physicsWorld.addBody(buildingPhysicsWorld2);
+
     new GLTFLoader().load('parking.glb', function (gltf) {
         const model = gltf.scene;
         model.traverse(function (object) {
@@ -666,6 +574,95 @@ function parking(){
             object.receiveShadow = true;
         });
         model.scale.set(2,2,1.7);
+
+        new GLTFLoader().load('light.glb', function (gltf) {
+            const light = gltf.scene;
+            light.traverse(function (object) {
+                object.castShadow = true;
+                object.receiveShadow = true;
+            });
+            
+            for (let i = 0; i < 7; i++){
+                const spotLight = new THREE.PointLight(0xffffff, 2)
+                spotLight.position.set(0.7 - (i * 0.2) , 0.1, 0);
+                spotLight.distance = 200;
+                light.add(spotLight);
+                 
+            }
+
+            model.add(light);
+            light.rotation.set(Math.PI, 0, 0);
+            
+            light.position.set(0,3.4,0);
+        });
+
+        new GLTFLoader().load('light.glb', function (gltf) {
+            const light = gltf.scene;
+            light.traverse(function (object) {
+                object.castShadow = true;
+                object.receiveShadow = true;
+            });
+            
+            for (let i = 0; i < 7; i++){
+                const spotLight = new THREE.PointLight(0xffffff, 2)
+                spotLight.position.set(0.7 - (i * 0.2) , 0.1, 0);
+                spotLight.distance = 200;
+                light.add(spotLight);
+                 
+            }
+
+            model.add(light);
+            light.rotation.set(Math.PI, 0, 0);
+            
+            light.position.set(-5, 3.4, -5);
+        });
+
+        new GLTFLoader().load('light.glb', function (gltf) {
+            const light = gltf.scene;
+            light.traverse(function (object) {
+                object.castShadow = true;
+                object.receiveShadow = true;
+            });
+
+            model.add(light);
+            light.rotation.set(Math.PI, 0, 0);
+            
+            light.position.set(5, 3.4, -5);
+        });
+
+        new GLTFLoader().load('light.glb', function (gltf) {
+            const light = gltf.scene;
+            light.traverse(function (object) {
+                object.castShadow = true;
+                object.receiveShadow = true;
+            });
+
+            model.add(light);
+            light.rotation.set(Math.PI, 0, 0);
+            
+            light.position.set(-5,3.4,5);
+        });
+
+        new GLTFLoader().load('light.glb', function (gltf) {
+            const light = gltf.scene;
+            light.traverse(function (object) {
+                object.castShadow = true;
+                object.receiveShadow = true;
+            });
+            
+            for (let i = 0; i < 7; i++){
+                const spotLight = new THREE.PointLight(0xffffff, 2)
+                spotLight.position.set(0.7 - (i * 0.2) , 0.1, 0);
+                spotLight.distance = 200;
+                light.add(spotLight);
+                 
+            }
+
+            model.add(light);
+            light.rotation.set(Math.PI, 0, 0);
+            
+            light.position.set(5, 3.4, 5);
+        });
         gameWorld.add(model);
         
         model.position.y = -0.2;
@@ -1526,12 +1523,14 @@ function extras(){
     }
 }
 ground();
-road();
+// road();
 light();
 // buildings();
-parking();
-extras();
+// parking();
+// extras();
 model();
+zombie();
+
 
 
 function wrapAndRepeatTexture(map, piece) {
@@ -1569,6 +1568,7 @@ function handlePlayButtonClick() {
     // Set the boolean variable to true when the button is clicked
     isPlayButtonClicked = true;
   }
+
 function handleReplayButtonClick() {
     // Set the boolean variable to true when the button is clicked
     isReplayButtonClicked = true;
@@ -1578,6 +1578,7 @@ function handleReplayButtonClick() {
   const overlayHeading = document.getElementById('overlay-heading');
 // const cannonDebugger = new CannonDebugger(gameWorld, physicsWorld, {});
 function animate() {
+
     //Change heading when Game has started
     overlayHeading.style.position = 'absolute';
     overlayHeading.style.left = '130px';
@@ -1591,9 +1592,6 @@ function animate() {
     const separateBar = document.getElementById('separate-bar');
     const scoreElement = document.getElementById('score');
     const KillElement = document.getElementById('KillCount');
-  
-   
-    //handles the button clicks(PAUSE, PLAY, RESTART)
     pauseButton.addEventListener('click', handlePauseButtonClick);
     playButton.addEventListener('click', handlePlayButtonClick);
     replayButton.addEventListener('click', handleReplayButtonClick);
@@ -1607,6 +1605,7 @@ function animate() {
  
   renderer.setViewport(0, 0, window.innerWidth, window.innerHeight);
 
+
   //if score is 2, then move to Level 2
 if(scoreElement.textContent==2){
     overlayHeading.textContent = 'Level 2'; 
@@ -1619,19 +1618,24 @@ if(scoreElement.textContent==4){
 }
 if(scoreElement.textContent==6){
     overlayHeading.textContent = 'WINNER'; 
-   
+
 }
 
 //if the health bar is zero, then end the game and display "game over"
  if(parseFloat(separateBar.style.width) === 0){
     overlayHeading.style.position = 'absolute';
     overlayHeading.style.left = '90px';
+    
     overlayHeading.textContent = 'GAME OVER'; 
-
+    characterControls=false;
+    for (let zombieControl of zombies) {
+        zombieControl = false;
+    }
  }
 
 //handles click of Replay button
  if(isReplayButtonClicked==true){
+
     separateBar.style.width = widdth+'px';
     scoreElement.textContent = 0;
     // isReplayButtonClicked=false;
@@ -1652,6 +1656,7 @@ if(scoreElement.textContent==6){
     pauseIcon.style.display = 'block';
   }
 
+
 //if the play button is clicked, it unpauses the game
   if (characterControls && isReplayButtonClicked==true && parseFloat(separateBar.style.width) ===0) {
     isButtonClicked=false;
@@ -1662,6 +1667,7 @@ if(scoreElement.textContent==6){
     positionX  = characterControls.getPositionX();
     positionZ = characterControls.getPositionZ();
   }
+
   if (characterControls && isPlayButtonClicked==true) {
     isButtonClicked=false;
     pauseIcon.style.display = 'none';
@@ -1671,41 +1677,15 @@ if(scoreElement.textContent==6){
     positionX  = characterControls.getPositionX();
     positionZ = characterControls.getPositionZ();
   }
-//if the zombies are loaded and the pause button is not clicked
-    if(zombieControl && isButtonClicked==false  && parseFloat(separateBar.style.width) !=0) {
-        zombieControl.update(mixerUpdateDelta, positionX, positionZ);
+
+  if (zombies.length !== 0 && isButtonClicked==false){
+    for (const zombieControl of zombies) {
+        zombieControl.update(mixerUpdateDelta, positionX, positionZ, gameWorld);
         zombieControl.distance(new THREE.Vector3(positionX, 0, positionZ));
         zombieControl.zombieDeath();
+        // console.log(zombieControl.model);
     }
- 
-
-    if(zombieControl1 && isButtonClicked==false  && parseFloat(separateBar.style.width) !=0) {
-        zombieControl1.update(mixerUpdateDelta, positionX, positionZ);
-        zombieControl1.distance(new THREE.Vector3(positionX, 0, positionZ));
-        zombieControl1.zombieDeath();
-     
-    }
-
-
-    if(zombieControl2 && isButtonClicked==false  && parseFloat(separateBar.style.width) !=0) {
-        zombieControl2.update(mixerUpdateDelta, positionX, positionZ);
-        zombieControl2.distance(new THREE.Vector3(positionX, 0, positionZ));
-        zombieControl2.zombieDeath();
-
- }
-
-
-   
-    if(zombieControl3 && isButtonClicked==false  && parseFloat(separateBar.style.width) !=0) {
-        zombieControl3.update(mixerUpdateDelta, positionX, positionZ);
-        zombieControl3.distance(new THREE.Vector3(positionX, 0, positionZ));
-        zombieControl3.zombieDeath();
-    }
-    if(zombieControl4 && isButtonClicked==false  && parseFloat(separateBar.style.width) !=0) {
-        zombieControl4.update(mixerUpdateDelta, positionX, positionZ);
-        zombieControl4.distance(new THREE.Vector3(positionX, 0, positionZ));
-        zombieControl4.zombieDeath();
-    }
+  }
 
     renderer.setViewport(0, 0, window.innerWidth, window.innerHeight);
     renderer.setClearColor(0xffffff); 
@@ -1752,7 +1732,7 @@ function resize(){
     camera.updateProjectionMatrix();
 
     renderer.setSize(window.innerWidth, window.innerHeight);
-  
+
     insetWidth = window.innerHeight / 3;
     insetHeight = window.innerHeight / 3;
 
@@ -1775,6 +1755,7 @@ startButton.addEventListener('click', () => {
 
 });
 window.addEventListener("resize", resize);
+
 
 
 // CONTROLS

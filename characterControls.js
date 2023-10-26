@@ -23,11 +23,14 @@ export class CharacterControls {
         this.cameraTarget = new THREE.Vector3();
         this.fadeDuration = 0.2;
         this.runVelocity = 5;
+        this.veloY = 5;
+
         this.walkVelocity = 2;
 
         this.orbitControl = orbitControl;
         this.camera = camera;
-        this.updateCameraTarget(0, 0);
+        this.updateCameraTarget(0, 0, 0);
+
 
         this.animationsMap.forEach((value, key) => {
             if (key == currentAction) {
@@ -132,6 +135,12 @@ export class CharacterControls {
             this.model.quaternion.rotateTowards(this.rotateQuarternion, 0.2);
 
             this.camera.getWorldDirection(this.walkDirection);
+
+            this.walkDirection.y = Math.atan2(
+                this.camera.position.y - this.model.position.y,
+                this.camera.position.z - this.model.position.z
+            );;
+
             this.walkDirection.y = 0;
             this.walkDirection.normalize();
             this.walkDirection.applyAxisAngle(this.rotateAngle, directionOffset);
@@ -140,22 +149,19 @@ export class CharacterControls {
 
             const moveX = this.walkDirection.x * velocity * delta;
             const moveZ = this.walkDirection.z * velocity * delta;
-            
             // let cc = this.physicsObject.position.x;
             // let ccy = this.physicsObject.position.z; 
             this.physicsObject.position.x -= moveX
             this.physicsObject.position.z -= moveZ
             this.model.position.x = this.physicsObject.position.x;
             this.model.position.z = this.physicsObject.position.z;
-            // this.model.quaternion.copy(this.phy.quaternion);
-            
-            // if (cc - this.physicsObject.position.x != 0 || ccy - this.physicsObject.position.z != 0){
-                this.updateCameraTarget(moveX, moveZ);
-            // }
+            this.model.position.y = this.physicsObject.position.y - 1;
+        
+            this.updateCameraTarget(moveX, moveZ, this.camera.position.y);
         }
     }
 
-    updateCameraTarget(moveX, moveZ) {
+    updateCameraTarget(moveX, moveZ, moveY) {
         this.camera.position.x -= moveX;
         this.camera.position.z -= moveZ;
 
