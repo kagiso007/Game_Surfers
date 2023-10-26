@@ -160,7 +160,7 @@ function model(){
     cylinderPhysicsWorld.angularFactor.set(0,0,0);
     physicsWorld.addBody(cylinderPhysicsWorld);
 
-    new GLTFLoader().load('gunHolding.glb', function (gltf) {
+    new GLTFLoader().load('holdingAGun.glb', function (gltf) {
         const model = gltf.scene;
         model.traverse(function (object) {
             if (object.isMesh) object.castShadow = true;
@@ -734,7 +734,7 @@ function parking(){
                 spotLight.position.set(0.7 - (i * 0.2) , 0.1, 0);
                 spotLight.distance = 200;
                 light.add(spotLight);
-                light.add(spotLight.target);
+                 
             }
 
             model.add(light);
@@ -755,7 +755,7 @@ function parking(){
                 spotLight.position.set(0.7 - (i * 0.2) , 0.1, 0);
                 spotLight.distance = 200;
                 light.add(spotLight);
-                light.add(spotLight.target);
+                 
             }
 
             model.add(light);
@@ -802,7 +802,7 @@ function parking(){
                 spotLight.position.set(0.7 - (i * 0.2) , 0.1, 0);
                 spotLight.distance = 200;
                 light.add(spotLight);
-                light.add(spotLight.target);
+                 
             }
 
             model.add(light);
@@ -2031,12 +2031,12 @@ function extras(){
     }
 }
 ground();
-road();
+// road();
 light();
-buildings();
+// buildings();
 parking();
 // cars();
-extras();
+// extras();
 model();
 
 

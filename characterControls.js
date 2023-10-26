@@ -23,11 +23,12 @@ export class CharacterControls {
         this.cameraTarget = new THREE.Vector3();
         this.fadeDuration = 0.2;
         this.runVelocity = 5;
+        this.veloY = 5;
         this.walkVelocity = 2;
 
         this.orbitControl = orbitControl;
         this.camera = camera;
-        this.updateCameraTarget(0, 0);
+        this.updateCameraTarget(0, 0, 0);
 
         this.animationsMap.forEach((value, key) => {
             if (key == currentAction) {
@@ -121,6 +122,7 @@ export class CharacterControls {
                 this.camera.position.x - this.model.position.x,
                 this.camera.position.z - this.model.position.z
             );
+            
 
             var directionOffset = this.directionOffset(keysPressed);
 
@@ -132,7 +134,10 @@ export class CharacterControls {
             this.model.quaternion.rotateTowards(this.rotateQuarternion, 0.2);
 
             this.camera.getWorldDirection(this.walkDirection);
-            this.walkDirection.y = 0;
+            this.walkDirection.y = Math.atan2(
+                this.camera.position.y - this.model.position.y,
+                this.camera.position.z - this.model.position.z
+            );;
             this.walkDirection.normalize();
             this.walkDirection.applyAxisAngle(this.rotateAngle, directionOffset);
 
@@ -140,6 +145,7 @@ export class CharacterControls {
 
             const moveX = this.walkDirection.x * velocity * delta;
             const moveZ = this.walkDirection.z * velocity * delta;
+            // const moveY = this.walkDirection.y * velocity * delta;
             
             // let cc = this.physicsObject.position.x;
             // let ccy = this.physicsObject.position.z; 
@@ -148,17 +154,33 @@ export class CharacterControls {
             this.model.position.x = this.physicsObject.position.x;
             this.model.position.z = this.physicsObject.position.z;
             this.model.position.y = this.physicsObject.position.y - 1;
+            // if (this.physicsObject.position.y > 1){
+            //     const moveY = this.physicsObject.position.y + (this.veloY * delta) + ((1 / 2) * (-9.8) * (delta * delta));
+            //     this.veloY = this.veloY + ((-9.8) * delta);
+            //     this.updateCameraTarget(moveX, moveZ, moveY);
+            // }
+            // else{
+            //     this.updateCameraTarget(moveX, moveZ, this.camera.position.y);
+            //     this.model.add(this.camera);
+            //     this.camera.position.set(5,5,0);
+            // }
+            this.updateCameraTarget(moveX, moveZ, this.camera.position.y);
+                // this.model.add(this.camera);
+                // this.camera.position.set(5,5,0);
+            
             // this.model.quaternion.copy(this.phy.quaternion);
             
             // if (cc - this.physicsObject.position.x != 0 || ccy - this.physicsObject.position.z != 0){
-                this.updateCameraTarget(moveX, moveZ);
+            
             // }
         }
     }
 
-    updateCameraTarget(moveX, moveZ) {
+    updateCameraTarget(moveX, moveZ, moveY) {
         this.camera.position.x -= moveX;
         this.camera.position.z -= moveZ;
+        this.camera.position.y = moveY;
+        // console.log(this.camera.position.y + moveY);
 
         this.cameraTop.position.z -= moveZ;
         this.cameraTop.position.x -= moveX;
