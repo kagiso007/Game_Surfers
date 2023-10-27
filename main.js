@@ -15,6 +15,7 @@ var LENGTH = 200;
 var bullets;
 var positionX = 0;
 var positionZ = 0;
+var positionY = 0;
 let widdth=185;
 
 let isButtonClicked = false;
@@ -113,7 +114,7 @@ function model(){
     cylinderPhysicsWorld.angularFactor.set(0,0,0);
     physicsWorld.addBody(cylinderPhysicsWorld);
 
-    new GLTFLoader().load('gunHolding.glb', function (gltf) {
+    new GLTFLoader().load('eve.glb', function (gltf) {
         const model = gltf.scene;
         model.traverse(function (object) {
             if (object.isMesh) object.castShadow = true;
@@ -126,13 +127,13 @@ function model(){
         const animationsMap = new Map();
         gltfAnimations.forEach((a) => {
             animationsMap.set(a.name, mixer.clipAction(a));
-            // console.log(a.name);
+            console.log(a.name);
         });
         characterControls = new CharacterControls(model, mixer, animationsMap, orbitControls, camera, 'Idle', cylinderPhysicsWorld, cameraTop);
     });
 }
 
-const zombies = [];
+let zombies = [];
 
 function zombie(){
     for (let i = 0; i < 4; i++){
@@ -160,7 +161,7 @@ function zombie(){
             const animationsMap = new Map();
             gltfAnimations.forEach((a) => {
                 animationsMap.set(a.name, mixer.clipAction(a));
-                console.log(a.name);
+                // console.log(a.name);
             });
             const zombieControl = new ZombieControl(model, mixer, animationsMap, 'Walking', cylinderPhysicsWorld1, bullets);
             zombies.push(zombieControl);
@@ -1523,11 +1524,11 @@ function extras(){
     }
 }
 ground();
-// road();
+road();
 light();
-// buildings();
-// parking();
-// extras();
+buildings();
+parking();
+extras();
 model();
 zombie();
 
@@ -1572,7 +1573,6 @@ function handlePlayButtonClick() {
 function handleReplayButtonClick() {
     // Set the boolean variable to true when the button is clicked
     isReplayButtonClicked = true;
-  
  
   }
   const overlayHeading = document.getElementById('overlay-heading');
@@ -1627,10 +1627,14 @@ if(scoreElement.textContent==6){
     overlayHeading.style.left = '90px';
     
     overlayHeading.textContent = 'GAME OVER'; 
-    characterControls=false;
+
+    // characterControls=false;
     for (let zombieControl of zombies) {
         zombieControl = false;
     }
+
+    characterControls.DeathPlay();
+
  }
 
 //handles click of Replay button
@@ -1644,11 +1648,17 @@ if(scoreElement.textContent==6){
 }
 
 //checks if the character is loaded and the pause button is not clicked, if it is clicked then this if statement won't run
-  if (characterControls && isButtonClicked==false && parseFloat(separateBar.style.width) !=0) {
+  
+if (characterControls && isButtonClicked==false) {
     characterControls.update(mixerUpdateDelta, keysPressed);
     bullets = characterControls.updateBullets(mixerUpdateDelta, gameWorld);
     positionX  = characterControls.getPositionX();
     positionZ = characterControls.getPositionZ();
+    positionY = characterControls.getPositionY();
+    for (let zombieControl of zombies) {
+        characterControls.hit(zombieControl.isAttack());
+    }
+
   }
 
 //if the pause button is clicked then,display the pause icon
@@ -1658,7 +1668,7 @@ if(scoreElement.textContent==6){
 
 
 //if the play button is clicked, it unpauses the game
-  if (characterControls && isReplayButtonClicked==true && parseFloat(separateBar.style.width) ===0) {
+  if (characterControls && isReplayButtonClicked==true) {
     isButtonClicked=false;
     pauseIcon.style.display = 'none';
     isPlayButtonClicked=false;
@@ -1666,6 +1676,11 @@ if(scoreElement.textContent==6){
     bullets = characterControls.updateBullets(mixerUpdateDelta, gameWorld);
     positionX  = characterControls.getPositionX();
     positionZ = characterControls.getPositionZ();
+    positionY = characterControls.getPositionY();
+
+      for (let zombieControl of zombies) {
+          characterControls.hit(zombieControl.isAttack());
+      }
   }
 
   if (characterControls && isPlayButtonClicked==true) {
@@ -1676,6 +1691,12 @@ if(scoreElement.textContent==6){
     bullets = characterControls.updateBullets(mixerUpdateDelta, gameWorld);
     positionX  = characterControls.getPositionX();
     positionZ = characterControls.getPositionZ();
+    positionY = characterControls.getPositionY();
+
+    for (let zombieControl of zombies) {
+        characterControls.hit(zombieControl.isAttack());
+    }
+
   }
 
   if (zombies.length !== 0 && isButtonClicked==false){
@@ -1683,7 +1704,6 @@ if(scoreElement.textContent==6){
         zombieControl.update(mixerUpdateDelta, positionX, positionZ, gameWorld);
         zombieControl.distance(new THREE.Vector3(positionX, 0, positionZ));
         zombieControl.zombieDeath();
-        // console.log(zombieControl.model);
     }
   }
 

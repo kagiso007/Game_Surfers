@@ -95,6 +95,9 @@ export class ZombieControl {
             }
         }
     }
+    isAttack() {
+        return this.attack;
+    }
    
       update(delta, userPositionX, userPositionZ, gameWorld) {
         var play = '';
