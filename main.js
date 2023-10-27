@@ -1,30 +1,31 @@
 
-
-
-import { KeyDisplay } from './Avatar_Controls/utils';
-import { CharacterControls } from './Avatar_Controls/characterControls';
-import { ZombieControl } from './Avatar_Controls/zombieControl';
+import { KeyDisplay } from './utils';
+import { CharacterControls } from './characterControls';
+import { ZombieControl } from './zombieControl';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import CannonDebugger from 'cannon-es-debugger';
 import * as THREE from 'three';
 import * as CANNON from 'cannon-es';
-import { FontLoader, TextGeometry } from 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.module.js';
+
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
-// import { GLTFLoader } from 'three';
-// import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+
 
 var WIDTH = 200;
 var LENGTH = 200;
 var bullets;
 var positionX = 0;
 var positionZ = 0;
-// main.js
-// Initialize audio context
+var positionY = 0;
+let widdth=185;
+
+let isButtonClicked = false;
+let isPlayButtonClicked = false;
+let isReplayButtonClicked = false;
+
 const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 const otherAudioFilePath = 'stranger-things-124008.mp3'; // Replace with the correct path to your other audio file
 let otherAudioBuffer = null;
 let shootingBuffer = null;
-let cube;
 
 
 function loadOtherSound() {
@@ -49,6 +50,7 @@ function playOtherSound() {
     console.error('Other audio buffer not available.');
   }
 }
+
 function loadShootingSound(url) {
   
   const request = new XMLHttpRequest();
@@ -74,49 +76,15 @@ function playShootingSound() {
   }
 }
 
-let score = 0;
-
-function updateScore() {
-  // Update the score based on the game logic
-  // For example, increment the score when a certain event occurs
-  score += 10;
-  console.log('Score:', score);
-}
-
-// const scene = new THREE.Scene();
-// const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
-let font;  // Define a variable to store the loaded font
-function displayScore() {
-  const scoreTextGeometry = new THREE.TextGeometry(`Score: ${score}`, {
-    font: font,
-    size: 0.2,  // Adjust size as needed
-    height: 0.02  // Adjust height as needed
-  });
-
-  const scoreTextMesh = new THREE.Mesh(scoreTextGeometry, new THREE.MeshBasicMaterial({ color: 0x00ff00 }));
-  scoreTextMesh.position.set(aspect * 4.5, aspect * 5 - 0.03, -10); // Adjust position as needed
-  scene.add(scoreTextMesh);
-}
-
-
 
 function initScene() {
-//video
 
-// loadWeaponModels();
 const aspect = window.innerWidth / window.innerHeight;
-
 let insetWidth, insetHeight;
-
 const clock = new THREE.Clock();
-
 const gameWorld = new THREE.Scene();
-// gameWorld.fog = new THREE.Fog(0xa0a0a0, 10, 50);
-
 const camera = new THREE.PerspectiveCamera(70,aspect,0.01,500);
-
 camera.position.set(5, 5, 0);
-
 camera.lookAt(0,0,0);
 camera.name = 'PlayerCam';
 
@@ -124,31 +92,17 @@ camera.name = 'PlayerCam';
 let cameraTop = new THREE.PerspectiveCamera(75,aspect,0.01,1000);
 
 cameraTop.position.set(0, 60, 0);
-
-
 cameraTop.lookAt(0,0,0);
 cameraTop.name = "OverheadCam";
 // camera.add(cameraTop);
 gameWorld.add(camera);
-
-// const geometry = new THREE.BoxGeometry( 1, 1, 1 );
-// const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
-// cube = new THREE.Mesh( geometry, material );
-
-// gameWorld.add( cube );
-
-// const gameWorld = new THREE.Scene();
 
 const physicsWorld = new CANNON.World({
     gravity : new CANNON.Vec3(0, -9.8, 0)
 });
 
 let characterControls;
-let zombieControl;
-let zombieControl1;
-let zombieControl2;
-// let zombieControl3;
-// let zombieControl4;
+
 function model(){
     const cylinder = new CANNON.Cylinder(0.5,0.5,2, 16);
     const cylinderPhysicsWorld = new CANNON.Body({
@@ -160,7 +114,8 @@ function model(){
     cylinderPhysicsWorld.angularFactor.set(0,0,0);
     physicsWorld.addBody(cylinderPhysicsWorld);
 
-    new GLTFLoader().load('gunHolding.glb', function (gltf) {
+    new GLTFLoader().load('eve.glb', function (gltf) {
+    new GLTFLoader().load('eve.glb', function (gltf) {
         const model = gltf.scene;
         model.traverse(function (object) {
             if (object.isMesh) object.castShadow = true;
@@ -173,146 +128,53 @@ function model(){
         const animationsMap = new Map();
         gltfAnimations.forEach((a) => {
             animationsMap.set(a.name, mixer.clipAction(a));
-            // console.log(a.name);
+            console.log(a.name);
+            console.log(a.name);
         });
         characterControls = new CharacterControls(model, mixer, animationsMap, orbitControls, camera, 'Idle', cylinderPhysicsWorld, cameraTop);
     });
-
-    const cylinderPhysicsWorld1 = new CANNON.Body({
-        mass: 10,
-        shape: cylinder, 
-    });
-    cylinderPhysicsWorld1.position.set(-40,0,-40);
-    
-    // cylinderPhysicsWorld1.angularFactor.set(0,0,0);
-    // physicsWorld.addBody(cylinderPhysicsWorld1);
-
-    // new GLTFLoader().load('zombie.glb', function (gltf) {
-    //     const model = gltf.scene;
-    //     model.traverse(function (object) {
-    //         if (object.isMesh) object.castShadow = true;
-    //     });
-    //     model.scale.set(2,2,2);
-    //     gameWorld.add(model);
-
-    //     const gltfAnimations = gltf.animations;
-    //     const mixer = new THREE.AnimationMixer(model);
-    //     const animationsMap = new Map();
-    //     gltfAnimations.forEach((a) => {
-    //         animationsMap.set(a.name, mixer.clipAction(a));
-    //         console.log(a.name);
-    //     });
-    //     zombieControl = new ZombieControl(model, mixer, animationsMap, 'Zombie_Walk', cylinderPhysicsWorld1, bullets);
-    // });
-
-    // const cylinderPhysicsWorld2 = new CANNON.Body({
-    //     mass: 10,
-    //     shape: cylinder, 
-    // });
-    // cylinderPhysicsWorld2.position.set(80,0,-40);
-    
-    // cylinderPhysicsWorld2.angularFactor.set(0,0,0);
-    // physicsWorld.addBody(cylinderPhysicsWorld2);
-
-    // new GLTFLoader().load('zombie.glb', function (gltf) {
-    //     const model = gltf.scene;
-    //     model.traverse(function (object) {
-    //         if (object.isMesh) object.castShadow = true;
-    //     });
-    //     model.scale.set(2,2,2);
-    //     gameWorld.add(model);
-
-    //     const gltfAnimations = gltf.animations;
-    //     const mixer = new THREE.AnimationMixer(model);
-    //     const animationsMap = new Map();
-    //     gltfAnimations.forEach((a) => {
-    //         animationsMap.set(a.name, mixer.clipAction(a));
-    //         console.log(a.name);
-    //     });
-    //     zombieControl1 = new ZombieControl(model, mixer, animationsMap, 'Zombie_Walk', cylinderPhysicsWorld2, bullets);
-    // });
-
-    // const cylinderPhysicsWorld3 = new CANNON.Body({
-    //     mass: 10,
-    //     shape: cylinder, 
-    // });
-    // cylinderPhysicsWorld3.position.set(-40,0,80);
-    
-    // cylinderPhysicsWorld3.angularFactor.set(0,0,0);
-    // physicsWorld.addBody(cylinderPhysicsWorld3);
-
-    // new GLTFLoader().load('zombie.glb', function (gltf) {
-    //     const model = gltf.scene;
-    //     model.traverse(function (object) {
-    //         if (object.isMesh) object.castShadow = true;
-    //     });
-    //     model.scale.set(2,2,2);
-    //     gameWorld.add(model);
-
-    //     const gltfAnimations = gltf.animations;
-    //     const mixer = new THREE.AnimationMixer(model);
-    //     const animationsMap = new Map();
-    //     gltfAnimations.forEach((a) => {
-    //         animationsMap.set(a.name, mixer.clipAction(a));
-    //         console.log(a.name);
-    //     });
-    //     zombieControl2 = new ZombieControl(model, mixer, animationsMap, 'Zombie_Walk', cylinderPhysicsWorld3, bullets);
-    // });
-
-    // const cylinderPhysicsWorld4 = new CANNON.Body({
-    //     mass: 10,
-    //     shape: cylinder, 
-    // });
-    // cylinderPhysicsWorld4.position.set(80,0,-80);
-    
-    // cylinderPhysicsWorld4.angularFactor.set(0,0,0);
-    // physicsWorld.addBody(cylinderPhysicsWorld4);
-
-    // new GLTFLoader().load('zombie.glb', function (gltf) {
-    //     const model = gltf.scene;
-    //     model.traverse(function (object) {
-    //         if (object.isMesh) object.castShadow = true;
-    //     });
-    //     model.scale.set(2,2,2);
-    //     gameWorld.add(model);
-
-    //     const gltfAnimations = gltf.animations;
-    //     const mixer = new THREE.AnimationMixer(model);
-    //     const animationsMap = new Map();
-    //     gltfAnimations.forEach((a) => {
-    //         animationsMap.set(a.name, mixer.clipAction(a));
-    //         console.log(a.name);
-    //     });
-    //     zombieControl3 = new ZombieControl(model, mixer, animationsMap, 'Zombie_Walk', cylinderPhysicsWorld4, bullets);
-    // });
-
-    // const cylinderPhysicsWorld5 = new CANNON.Body({
-    //     mass: 10,
-    //     shape: cylinder, 
-    // });
-    // cylinderPhysicsWorld5.position.set(90,0,40);
-    
-    // cylinderPhysicsWorld5.angularFactor.set(0,0,0);
-    // physicsWorld.addBody(cylinderPhysicsWorld5);
-
-    // new GLTFLoader().load('zombie.glb', function (gltf) {
-    //     const model = gltf.scene;
-    //     model.traverse(function (object) {
-    //         if (object.isMesh) object.castShadow = true;
-    //     });
-    //     model.scale.set(2,2,2);
-    //     gameWorld.add(model);
-
-    //     const gltfAnimations = gltf.animations;
-    //     const mixer = new THREE.AnimationMixer(model);
-    //     const animationsMap = new Map();
-    //     gltfAnimations.forEach((a) => {
-    //         animationsMap.set(a.name, mixer.clipAction(a));
-    //         console.log(a.name);
-    //     });
-    //     zombieControl4 = new ZombieControl(model, mixer, animationsMap, 'Zombie_Walk', cylinderPhysicsWorld5, bullets);
-    // });
 }
+
+let zombies = [];
+
+function zombie(){
+    for (let i = 0; i < 4; i++){
+
+        const cylinder = new CANNON.Cylinder(0.5,0.5,2, 16);
+        const cylinderPhysicsWorld1 = new CANNON.Body({
+            mass: 10,
+            shape: cylinder, 
+        });
+        cylinderPhysicsWorld1.position.set(Math.floor(Math.random() * ((100 - (-100) + 1) - 100)), 100, Math.floor(Math.random() * ((100 - (-100) + 1) - 100)));
+        
+        cylinderPhysicsWorld1.angularFactor.set(0,0,0);
+        physicsWorld.addBody(cylinderPhysicsWorld1);
+
+        new GLTFLoader().load('zombie.glb', function (gltf) {
+            const model = gltf.scene;
+            model.traverse(function (object) {
+                if (object.isMesh) object.castShadow = true;
+            });
+            model.scale.set(1.5,1.5,1.5);
+            gameWorld.add(model);
+    
+            const gltfAnimations = gltf.animations;
+            const mixer = new THREE.AnimationMixer(model);
+            const animationsMap = new Map();
+            gltfAnimations.forEach((a) => {
+                animationsMap.set(a.name, mixer.clipAction(a));
+                // console.log(a.name);
+                // console.log(a.name);
+            });
+            const zombieControl = new ZombieControl(model, mixer, animationsMap, 'Walking', cylinderPhysicsWorld1, bullets);
+            zombies.push(zombieControl);
+            zombiesReady = true
+            hideLoadingScreen();
+        });
+    }
+}
+
+
 
 const keysPressed = {};
 const keyDisplayQueue = new KeyDisplay();
@@ -374,6 +236,7 @@ function ground() {
     skybox.rotation.set(0, Math.PI / 2, 0);
     gameWorld.add(skybox);
 }
+
 function road(){
     const textureLoader = new THREE.TextureLoader();
 
@@ -559,32 +422,6 @@ function parking(){
     buildingPhysicsWorld4.position.set(17.5,15,-32);
     buildingPhysicsWorld4.quaternion.setFromEuler(0, Math.PI / 2 , 0);
     physicsWorld.addBody(buildingPhysicsWorld4);
-
-    // new physics blocks
-
-    const buildingPhysicsWorld5 = new CANNON.Body({
-        type : CANNON.Body.STATIC,
-        shape : new CANNON.Box(new CANNON.Vec3(20,20,1)),
-    });
-    buildingPhysicsWorld5.position.set(30,6,-30);
-    buildingPhysicsWorld5.quaternion.setFromEuler(Math.PI / 2, 0 , 0);
-    physicsWorld.addBody(buildingPhysicsWorld5);
-
-    const buildingPhysicsWorld6 = new CANNON.Body({
-        type : CANNON.Body.STATIC,
-        shape : new CANNON.Box(new CANNON.Vec3(8,8,1)),
-    });
-    buildingPhysicsWorld6.position.set(55 ,6,-42);
-    buildingPhysicsWorld6.quaternion.setFromEuler(Math.PI / 2, 0 , 0);
-    physicsWorld.addBody(buildingPhysicsWorld6);
-
-    const buildingPhysicsWorld2 = new CANNON.Body({
-        type : CANNON.Body.STATIC,
-        shape : new CANNON.Box(new CANNON.Vec3(7.6,15,1)),
-    });
-    buildingPhysicsWorld2.position.set(55.2,1,-20);
-    buildingPhysicsWorld2.quaternion.setFromEuler(- (70 / 180) * Math.PI, 0 , 0);
-    physicsWorld.addBody(buildingPhysicsWorld2);
     
     const parkWalls = new CANNON.Body({
         type : CANNON.Body.STATIC,
@@ -714,6 +551,30 @@ function parking(){
     parkWall7.quaternion.setFromEuler(0, 0, 0);
     physicsWorld.addBody(parkWall7);
 
+    const buildingPhysicsWorld5 = new CANNON.Body({
+        type : CANNON.Body.STATIC,
+        shape : new CANNON.Box(new CANNON.Vec3(20,20,1)),
+    });
+    buildingPhysicsWorld5.position.set(30,6,-30);
+    buildingPhysicsWorld5.quaternion.setFromEuler(Math.PI / 2, 0 , 0);
+    physicsWorld.addBody(buildingPhysicsWorld5);
+
+    const buildingPhysicsWorld6 = new CANNON.Body({
+        type : CANNON.Body.STATIC,
+        shape : new CANNON.Box(new CANNON.Vec3(8,8,1)),
+    });
+    buildingPhysicsWorld6.position.set(55 ,6,-42);
+    buildingPhysicsWorld6.quaternion.setFromEuler(Math.PI / 2, 0 , 0);
+    physicsWorld.addBody(buildingPhysicsWorld6);
+
+    const buildingPhysicsWorld2 = new CANNON.Body({
+        type : CANNON.Body.STATIC,
+        shape : new CANNON.Box(new CANNON.Vec3(7.6,15,1)),
+    });
+    buildingPhysicsWorld2.position.set(55.2,1,-20);
+    buildingPhysicsWorld2.quaternion.setFromEuler(- (70 / 180) * Math.PI, 0 , 0);
+    physicsWorld.addBody(buildingPhysicsWorld2);
+
     new GLTFLoader().load('parking.glb', function (gltf) {
         const model = gltf.scene;
         model.traverse(function (object) {
@@ -734,7 +595,7 @@ function parking(){
                 spotLight.position.set(0.7 - (i * 0.2) , 0.1, 0);
                 spotLight.distance = 200;
                 light.add(spotLight);
-                light.add(spotLight.target);
+                 
             }
 
             model.add(light);
@@ -755,7 +616,7 @@ function parking(){
                 spotLight.position.set(0.7 - (i * 0.2) , 0.1, 0);
                 spotLight.distance = 200;
                 light.add(spotLight);
-                light.add(spotLight.target);
+                 
             }
 
             model.add(light);
@@ -802,7 +663,7 @@ function parking(){
                 spotLight.position.set(0.7 - (i * 0.2) , 0.1, 0);
                 spotLight.distance = 200;
                 light.add(spotLight);
-                light.add(spotLight.target);
+                 
             }
 
             model.add(light);
@@ -810,7 +671,6 @@ function parking(){
             
             light.position.set(5, 3.4, 5);
         });
-
         gameWorld.add(model);
         
         model.position.y = -0.2;
@@ -824,7 +684,7 @@ function parking(){
             object.castShadow = true;
             object.receiveShadow = true;
         });
-        // gameWorld.add(model);
+        gameWorld.add(model);
         
         model.position.y = 6.42;
         model.position.x = -80;
@@ -839,11 +699,13 @@ function parking(){
             object.castShadow = true;
             object.receiveShadow = true;
         });
-        // gameWorld.add(model);
+        gameWorld.add(model);
         
         model.position.y = 6.42;
         model.position.x = -55;
         model.position.z = -50;
+
+        // model.rotation.set(0, Math.PI / 2, 0);
 
         model.scale.set(0.2,0.2,0.2);
 
@@ -891,368 +753,6 @@ function light() {
     dirLight.shadow.mapSize.height = 4096;
     gameWorld.add(dirLight);
 }
-
-// function cars(){
-//     const box = new CANNON.Box(new CANNON.Vec3(1, 1, 2.5));
-//     const box2 = new CANNON.Box(new CANNON.Vec3(1.2,2,3)); 
-//     const body = new CANNON.Body({
-//         type : CANNON.Body.STATIC,
-//     });
-//     body.addShape(box);
-//     body.position.set(10, 0, 10);
-//     physicsWorld.addBody(body);
-    
-//     const body1 = new CANNON.Body({
-//         type : CANNON.Body.STATIC,
-//     });
-//     body1.addShape(box);
-//     body1.position.set(55, 0, 30);
-//     physicsWorld.addBody(body1);
-
-//     const body2 = new CANNON.Body({
-//         type : CANNON.Body.STATIC,
-//     });
-//     body2.addShape(box);
-//     body2.position.set(30.5, 0, 52);
-//     physicsWorld.addBody(body2);
-    
-//     const body3 = new CANNON.Body({
-//         type : CANNON.Body.STATIC,
-//     });
-//     body3.addShape(box);
-//     body3.position.set(30.5, 0, -45);
-//     physicsWorld.addBody(body3);
-    
-//     const body4 = new CANNON.Body({
-//         type : CANNON.Body.STATIC,
-//     });
-//     body4.addShape(box);
-//     body4.position.set(48.5, 0, -30);
-//     physicsWorld.addBody(body4);
-    
-//     const body5 = new CANNON.Body({
-//         type : CANNON.Body.STATIC,
-//     });
-//     body5.addShape(box);
-//     body5.position.set(30.5, 0, -20);
-//     physicsWorld.addBody(body5);
-    
-//     const body6 = new CANNON.Body({
-//         type : CANNON.Body.STATIC,
-//     });
-//     body6.addShape(box2);
-//     body6.position.set(-60, 0, 10);
-//     body6.quaternion.setFromEuler(0, (135 * (Math.PI / 180)), 0);
-//     physicsWorld.addBody(body6);
-    
-//     const body7 = new CANNON.Body({
-//         type : CANNON.Body.STATIC,
-//     });
-//     body7.addShape(box);
-//     body7.position.set(-60, 0, -10);
-//     body7.quaternion.setFromEuler(0, (225 * (Math.PI / 180)), 0);
-//     physicsWorld.addBody(body7);
-    
-//     const body8 = new CANNON.Body({
-//         type : CANNON.Body.STATIC,
-//     });
-//     body8.addShape(box);
-//     body8.position.set(-50, 0, 10);
-//     body8.quaternion.setFromEuler(0, Math.PI / 2, 0);
-//     physicsWorld.addBody(body8);
-    
-//     const body9 = new CANNON.Body({
-//         type : CANNON.Body.STATIC,
-//     });
-//     body9.addShape(box);
-//     body9.position.set(-70, 0, 10);
-//     body9.quaternion.setFromEuler(0, (135 * (Math.PI / 180)), 0);
-//     physicsWorld.addBody(body9);
-    
-//     const body10 = new CANNON.Body({
-//         type : CANNON.Body.STATIC,
-//     });
-//     body10.addShape(box2);
-//     body10.position.set(50, 0, -45);
-//     body10.quaternion.setFromEuler(0, (25 * (Math.PI / 180)), 0);
-//     physicsWorld.addBody(body10);
-    
-//     const body11 = new CANNON.Body({
-//         type : CANNON.Body.STATIC,
-//     });
-//     body11.addShape(box2);
-//     body11.position.set(30, 0, 90);
-//     body11.quaternion.setFromEuler(0, Math.PI / 2, 0);
-//     physicsWorld.addBody(body11);
-    
-//     const body12 = new CANNON.Body({
-//         type : CANNON.Body.STATIC,
-//     });
-//     body12.addShape(box2);
-//     body12.position.set(80, 0, 95);
-//     body12.quaternion.setFromEuler(0, Math.PI / 4, 0);
-//     physicsWorld.addBody(body12);
-    
-//     const body13 = new CANNON.Body({
-//         type : CANNON.Body.STATIC,
-//     });
-//     body13.addShape(box2);
-//     body13.position.set(-55, 0, 80);
-//     body13.quaternion.setFromEuler(0, Math.PI / 4, 0);
-//     physicsWorld.addBody(body13);
-    
-//     const body14 = new CANNON.Body({
-//         type : CANNON.Body.STATIC,
-//     });
-//     body14.addShape(box2);
-//     body14.position.set(-65, 0, 40);
-//     body14.quaternion.setFromEuler(0, (25 * (Math.PI / 180)), 0);
-//     physicsWorld.addBody(body14);
-    
-//     const body15 = new CANNON.Body({
-//         type : CANNON.Body.STATIC,
-//     });
-//     body15.addShape(box2);
-//     body15.position.set(-70, 0, 40);
-//     body15.quaternion.setFromEuler(0, (25 * (Math.PI / 180)), 0);
-//     physicsWorld.addBody(body15);
-    
-//     const body16 = new CANNON.Body({
-//         type : CANNON.Body.STATIC,
-//     });
-//     body16.addShape(box2);
-//     body16.position.set(-75, 0, 40);
-//     body16.quaternion.setFromEuler(0, (25 * (Math.PI / 180)), 0);
-//     physicsWorld.addBody(body16);
-    
-//     new GLTFLoader().load('taxi.glb', function (gltf) {
-//             const model = gltf.scene;
-//             model.traverse(function (object) {
-//                     object.castShadow = true;
-//                     object.receiveShadow = true;
-//                 });
-//                 gameWorld.add(model);
-            
-//                 model.quaternion.copy(body.quaternion);
-//                 model.position.x = 10;
-//                 model.position.z = 10;
-//             });
-            
-//             new GLTFLoader().load('taxi.glb', function (gltf) {
-//         const model = gltf.scene;
-//         model.traverse(function (object) {
-//                 object.castShadow = true;
-//                 object.receiveShadow = true;
-//             });
-//         gameWorld.add(model);
-    
-//         model.quaternion.copy(body1.quaternion);
-//         model.position.x = 55;
-//         model.position.z = 30;
-//     });
-
-//     new GLTFLoader().load('taxi.glb', function (gltf) {
-//         const model = gltf.scene;
-//         model.traverse(function (object) {
-//             object.castShadow = true;
-//             object.receiveShadow = true;
-//         });
-//         gameWorld.add(model);
-        
-//         model.quaternion.copy(body2.quaternion);
-//         model.position.x = 30.5;
-//         model.position.z = 52;
-//     });
-
-//     // new GLTFLoader().load('taxi.glb', function (gltf) {
-//     //     const model = gltf.scene;
-//     //     model.traverse(function (object) {
-//     //         object.castShadow = true;
-//     //         object.receiveShadow = true;
-//     //     });
-//     //     gameWorld.add(model);
-        
-//     //     model.quaternion.copy(body3.quaternion);
-//     //     model.position.x = 30.5;
-//     //     model.position.z = -45;
-//     // });
-
-//     // new GLTFLoader().load('taxi.glb', function (gltf) {
-//     //         const model = gltf.scene;
-//     //     model.traverse(function (object) {
-//     //         object.castShadow = true;
-//     //         object.receiveShadow = true;
-//     //     });
-//     //     gameWorld.add(model);
-        
-//     //     model.quaternion.copy(body4.quaternion);
-//     //     model.position.x = 48.5;
-//     //     model.position.z = -30;
-//     // });
-
-//     // new GLTFLoader().load('taxi.glb', function (gltf) {
-//     //     const model = gltf.scene;
-//     //     model.traverse(function (object) {
-//     //         object.castShadow = true;
-//     //         object.receiveShadow = true;
-//     //     });
-//     //     gameWorld.add(model);
-        
-//     //     model.quaternion.copy(body5.quaternion);
-//     //     model.position.x = 30.5;
-//     //     model.position.z = -20;
-//     // });
-
-//     new GLTFLoader().load('sportCar.glb', function (gltf) {
-//         const model = gltf.scene;
-//         model.traverse(function (object) {
-//             object.castShadow = true;
-//             object.receiveShadow = true;
-//         });
-//         gameWorld.add(model);
-//         model.scale.set(0.013, 0.01, 0.013); 
-//         model.quaternion.copy(body6.quaternion);
-//         model.position.x = -60;
-//         model.position.z = 10;
-//     });
-
-//     new GLTFLoader().load('taxi.glb', function (gltf) {
-//         const model = gltf.scene;
-//         model.traverse(function (object) {
-//             object.castShadow = true;
-//             object.receiveShadow = true;
-//         });
-//         gameWorld.add(model);
-        
-//         model.quaternion.copy(body7.quaternion);
-//         model.position.x = -60;
-//         model.position.z = -10;
-//     });
-    
-//     new GLTFLoader().load('taxi.glb', function (gltf) {
-//         const model = gltf.scene;
-//         model.traverse(function (object) {
-//             object.castShadow = true;
-//             object.receiveShadow = true;
-//         });
-//         gameWorld.add(model);
-    
-//         model.quaternion.copy(body8.quaternion);
-//         model.position.x = -50;
-//         model.position.z = 10;
-//     });
-    
-//     new GLTFLoader().load('taxi.glb', function (gltf) {
-//             const model = gltf.scene;
-//             model.traverse(function (object) {
-//                     object.castShadow = true;
-//                     object.receiveShadow = true;
-//                 });
-//                 gameWorld.add(model);
-            
-//                 model.quaternion.copy(body9.quaternion);
-//                 model.position.x = -70;
-//                 model.position.z = 10;
-//     });
-
-
-//     new GLTFLoader().load('sportCar.glb', function (gltf) {
-//         const model = gltf.scene;
-//         model.traverse(function (object) {
-//                 object.castShadow = true;
-//                 object.receiveShadow = true;
-//             });
-//         gameWorld.add(model);
-//         model.scale.set(0.013, 0.01, 0.013);        
-//         model.quaternion.copy(body10.quaternion);
-//         model.position.x = 50;
-//         model.position.z = -45;
-//     });
-
-//     new GLTFLoader().load('sportCar.glb', function (gltf) {
-//         const model = gltf.scene;
-//         model.traverse(function (object) {
-//                 object.castShadow = true;
-//                 object.receiveShadow = true;
-//         });
-//         gameWorld.add(model);
-//         model.scale.set(0.013, 0.01, 0.013);        
-//         model.quaternion.copy(body11.quaternion);
-//         model.position.x = 30;
-//         model.position.z = 90;
-//     });
-    
-    
-//     new GLTFLoader().load('sportCar.glb', function (gltf) {
-//             const model = gltf.scene;
-//         model.traverse(function (object) {
-//             object.castShadow = true;
-//             object.receiveShadow = true;
-//         });
-//         gameWorld.add(model);
-//         model.scale.set(0.013, 0.01, 0.013);        
-//         model.quaternion.copy(body12.quaternion);
-//         model.position.x = 80;
-//         model.position.z = 95;
-//     });
-    
-    
-//     new GLTFLoader().load('sportCar.glb', function (gltf) {
-//             const model = gltf.scene;
-//             model.traverse(function (object) {
-//             object.castShadow = true;
-//             object.receiveShadow = true;
-//         });
-//         gameWorld.add(model);
-//         model.scale.set(0.013, 0.01, 0.013);        
-//         model.quaternion.copy(body13.quaternion);
-//         model.position.x = -55;
-//         model.position.z = 80;
-//     });
-
-    
-//     new GLTFLoader().load('sportCar.glb', function (gltf) {
-//         const model = gltf.scene;
-//         model.traverse(function (object) {
-//                 object.castShadow = true;
-//                 object.receiveShadow = true;
-//             });
-//             gameWorld.add(model);
-//             model.scale.set(0.013, 0.01, 0.013);        
-//             model.quaternion.copy(body14.quaternion);
-//             model.position.x = -65;
-//             model.position.z = 40;
-//         });
-        
-        
-//         new GLTFLoader().load('sportCar.glb', function (gltf) {
-//                 const model = gltf.scene;
-//                 model.traverse(function (object) {
-//             object.castShadow = true;
-//             object.receiveShadow = true;
-//         });
-//         gameWorld.add(model);
-//         model.scale.set(0.013, 0.01, 0.013);        
-//         model.quaternion.copy(body15.quaternion);
-//         model.position.x = -70;
-//         model.position.z = 40;
-//     });
-    
-    
-//     new GLTFLoader().load('sportCar.glb', function (gltf) {
-//             const model = gltf.scene;
-//         model.traverse(function (object) {
-//                 object.castShadow = true;
-//             object.receiveShadow = true;
-//         });
-//         gameWorld.add(model);
-//         model.scale.set(0.013, 0.01, 0.013);        
-//         model.quaternion.copy(body16.quaternion);
-//         model.position.x = -75;
-//         model.position.z = 40;
-//     });
-
-// }
 
 function buildings(){
     const buildingPhysicsWorld = new CANNON.Body({
@@ -2031,13 +1531,14 @@ function extras(){
     }
 }
 ground();
-// road();
+road();
 light();
-// buildings();
+buildings();
 parking();
-// cars();
-// extras();
+extras();
 model();
+// zombie(2);
+
 
 
 function wrapAndRepeatTexture(map, piece) {
@@ -2058,82 +1559,6 @@ function hResizeAndWrapTexture(map){
         map.repeat.z = map.repeat.x = 10;
     
 }
-// const weaponGeometry = new THREE.BoxGeometry(1, 1, 1);
-// const weaponMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 }); // Red color for the placeholder
-// selectedWeaponModel = new THREE.Mesh(weaponGeometry, weaponMaterial);
-// selectedWeaponModel.position.set(0, 0, -10);
-// gameWorld.add(selectedWeaponModel);
-
-
-
-// Create health indicator geometry and material with adjusted scale
-// const healthIndicatorGeometry = new THREE.BoxGeometry(2, 0.1, 0.1); // Adjusted scale for longer lines horizontally
-// const healthIndicatorMaterial = new THREE.MeshBasicMaterial({ color: 0xFF00}); // Red color for health
-// const healthIndicator = new THREE.Mesh(healthIndicatorGeometry, healthIndicatorMaterial);
-// healthIndicator.position.set(-aspect * 5, aspect * 5, -10);
-// gameWorld.add(healthIndicator);
-
-// // Create shield indicator geometry and material with adjusted scale
-// const shieldIndicatorGeometry = new THREE.BoxGeometry(2, 0.1, 0.1); // Adjusted scale for longer lines horizontally
-// const shieldIndicatorMaterial = new THREE.MeshBasicMaterial({ color: 0x0000ff }); // Blue color for shield
-// const shieldIndicator = new THREE.Mesh(shieldIndicatorGeometry, shieldIndicatorMaterial);
-// shieldIndicator.position.set(-aspect * 5, aspect * 4.7, -10);
-// gameWorld.add(shieldIndicator);
-  // Create the button
-
-
-
-
-// const healthTextGeometry = new TextGeometry('Health', {
-//     font: font,
-//     size: 0.2,  // Adjust size as needed
-//     height: 0.02  // Adjust height as needed
-//   });
-  
-//   const shieldTextGeometry = new TextGeometry('Shield', {
-//     font: font,
-//     size: 0.2,  // Adjust size as needed
-//     height: 0.02  // Adjust height as needed
-//   });
-
-
-
-
-// const healthLabelGeometry = new TextGeometry('Health:', {
-//     font: font,
-//     size: 0.2,  // Adjust size as needed
-//     height: 100  // Adjust height as needed
-//   });
-  
-//   const shieldLabelGeometry = new TextGeometry('Shield:', {
-//     font: font,
-//     size: 0.2,  // Adjust size as needed
-//     height: 0.02  // Adjust height as needed
-//   });
- 
-
-// const healthLabelMesh = new THREE.Mesh(healthLabelGeometry, new THREE.MeshBasicMaterial({ color: 0x000000 })); // Black color for health label
-// const shieldLabelMesh = new THREE.Mesh(shieldLabelGeometry, new THREE.MeshBasicMaterial({ color: 0x000000 })); // Black color for shield label
-
-// healthLabelMesh.position.set(-aspect * 5 - 10, aspect * 5 - 0.03, -10);
-// shieldLabelMesh.position.set(-aspect * 5 - 0.6, aspect * 4.7 - 0.03, -10);
-
-// gameWorld.add(healthLabelMesh);
-// gameWorld.add(shieldLabelMesh);
-
-
-
-
-// Create text mesh objects and position them accordingly
-// const healthTextMesh = new THREE.Mesh(healthTextGeometry, new THREE.MeshBasicMaterial({ color: 0xff0000 }));
-// const shieldTextMesh = new THREE.Mesh(shieldTextGeometry, new THREE.MeshBasicMaterial({ color: 0x0000ff }));
-
-// healthTextMesh.position.set(-aspect * 5 - 0.15, aspect * 5 - 0.03, -10);
-// shieldTextMesh.position.set(-aspect * 5 - 0.15, aspect * 4.7 - 0.03, -10);
-
-// // Add text meshes to the gameWorld
-// gameWorld.add(healthTextMesh);
-// gameWorld.add(shieldTextMesh);
 
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize( window.innerWidth, window.innerHeight );
@@ -2142,50 +1567,160 @@ renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.setClearColor(0xffffff); 
 document.body.appendChild( renderer.domElement );
 
+function handlePauseButtonClick() {
+    // Set the boolean variable to true when the button is clicked
+    isButtonClicked = true;
+ 
+  }
+function handlePlayButtonClick() {
+    // Set the boolean variable to true when the button is clicked
+    isPlayButtonClicked = true;
+  }
+
+function handleReplayButtonClick() {
+    // Set the boolean variable to true when the button is clicked
+    isReplayButtonClicked = true;
+ 
+  }
+  const overlayHeading = document.getElementById('overlay-heading');
 // const cannonDebugger = new CannonDebugger(gameWorld, physicsWorld, {});
 function animate() {
+
+    //Change heading when Game has started
+    overlayHeading.style.position = 'absolute';
+    overlayHeading.style.left = '130px';
+    if(overlayHeading.textContent=='Vigilante Vanguard'){
+        overlayHeading.textContent = 'Level 1'; 
+        zombie(2);
+    }
+    // createZombie();
+    //get references for each button,icon,text element
+    const pauseButton = document.getElementById('pauseButton');
+    const playButton = document.getElementById('otherButton');
+    const pauseIcon = document.getElementById('pauseIcon');
+    const replayButton = document.getElementById('quitButton');
+    const separateBar = document.getElementById('separate-bar');
+    const scoreElement = document.getElementById('score');
+    const KillElement = document.getElementById('KillCount');
+    pauseButton.addEventListener('click', handlePauseButtonClick);
+    playButton.addEventListener('click', handlePlayButtonClick);
+    replayButton.addEventListener('click', handleReplayButtonClick);
+
+
     physicsWorld.fixedStep();
     // cannonDebugger.update();
     const mixerUpdateDelta = clock.getDelta();
-  renderer.render(gameWorld, camera);
+    renderer.render(gameWorld, camera);
     requestAnimationFrame(animate);
  
   renderer.setViewport(0, 0, window.innerWidth, window.innerHeight);
 
-  if (characterControls) {
+
+  //if score is 2, then move to Level 2
+if(scoreElement.textContent==2 && overlayHeading.textContent === 'Level 1'){
+    overlayHeading.textContent = 'Level 2'; 
+    KillElement.textContent = 'Mission : Kill 4 zombies';
+    zombie(4);
+    // scoreElement.textContent = 0;
+}
+  //if score is 6 then move to level 3
+if(scoreElement.textContent==6 && overlayHeading.textContent === 'Level 2'){
+    overlayHeading.textContent = 'Level 3'; 
+    KillElement.textContent = 'Mission : Kill 6 zombies';
+    // scoreElement.textContent = 0;
+    zombie(5);
+}
+if(scoreElement.textContent==12 && overlayHeading.textContent === 'Level 3'){
+    overlayHeading.textContent = 'WINNER'; 
+
+}
+
+//if the health bar is zero, then end the game and display "game over"
+ if(parseFloat(separateBar.style.width) === 0){
+    overlayHeading.style.position = 'absolute';
+    overlayHeading.style.left = '90px';
+    
+    overlayHeading.textContent = 'GAME OVER'; 
+
+    // characterControls=false;
+    for (let zombieControl of zombies) {
+        zombieControl = false;
+    }
+
+    characterControls.DeathPlay();
+
+ }
+
+//handles click of Replay button
+ if(isReplayButtonClicked==true){
+
+    separateBar.style.width = widdth+'px';
+    scoreElement.textContent = 0;
+    // isReplayButtonClicked=false;
+    KillElement.textContent = 'Mission : Kill 2 zombies';
+    overlayHeading.textContent = 'Level 1';  
+}
+
+//checks if the character is loaded and the pause button is not clicked, if it is clicked then this if statement won't run
+  
+if (characterControls && isButtonClicked==false) {
     characterControls.update(mixerUpdateDelta, keysPressed);
     bullets = characterControls.updateBullets(mixerUpdateDelta, gameWorld);
     positionX  = characterControls.getPositionX();
     positionZ = characterControls.getPositionZ();
+    positionY = characterControls.getPositionY();
+    for (let zombieControl of zombies) {
+        characterControls.hit(zombieControl.isAttack());
+    }
+
   }
-    // if(zombieControl) {
-    //     zombieControl.update(mixerUpdateDelta, positionX, positionZ);
-    //     zombieControl.distance(new THREE.Vector3(positionX, 0, positionZ));
-    //     zombieControl.zombieDeath();
-    // }
 
-    // if(zombieControl1) {
-    //     zombieControl1.update(mixerUpdateDelta, positionX, positionZ);
-    //     zombieControl1.distance(new THREE.Vector3(positionX, 0, positionZ));
-    //     zombieControl1.zombieDeath();
-    // }
+//if the pause button is clicked then,display the pause icon
+  if(isButtonClicked==true){
+    pauseIcon.style.display = 'block';
+  }
 
-    // if(zombieControl2) {
-    //     zombieControl2.update(mixerUpdateDelta, positionX, positionZ);
-    //     zombieControl2.distance(new THREE.Vector3(positionX, 0, positionZ));
-    //     zombieControl2.zombieDeath();
-    // }
-    // if(zombieControl3) {
-    //     zombieControl3.update(mixerUpdateDelta, positionX, positionZ);
-    //     zombieControl3.distance(new THREE.Vector3(positionX, 0, positionZ));
-    //     zombieControl3.zombieDeath();
-    // }
-    // if(zombieControl4) {
-    //     zombieControl4.update(mixerUpdateDelta, positionX, positionZ);
-    //     zombieControl4.distance(new THREE.Vector3(positionX, 0, positionZ));
-    //     zombieControl4.zombieDeath();
-    // }
 
+//if the play button is clicked, it unpauses the game
+  if (characterControls && isReplayButtonClicked==true) {
+    isButtonClicked=false;
+    pauseIcon.style.display = 'none';
+    isPlayButtonClicked=false;
+    characterControls.update(mixerUpdateDelta, keysPressed);
+    bullets = characterControls.updateBullets(mixerUpdateDelta, gameWorld);
+    positionX  = characterControls.getPositionX();
+    positionZ = characterControls.getPositionZ();
+    positionY = characterControls.getPositionY();
+
+      for (let zombieControl of zombies) {
+          characterControls.hit(zombieControl.isAttack());
+      }
+  }
+
+  if (characterControls && isPlayButtonClicked==true) {
+    isButtonClicked=false;
+    pauseIcon.style.display = 'none';
+    isPlayButtonClicked=false;
+    characterControls.update(mixerUpdateDelta, keysPressed);
+    bullets = characterControls.updateBullets(mixerUpdateDelta, gameWorld);
+    positionX  = characterControls.getPositionX();
+    positionZ = characterControls.getPositionZ();
+    positionY = characterControls.getPositionY();
+
+    for (let zombieControl of zombies) {
+        characterControls.hit(zombieControl.isAttack());
+    }
+
+  }
+
+  if (zombies.length !== 0 && isButtonClicked==false){
+    for (const zombieControl of zombies) {
+        zombieControl.update(mixerUpdateDelta, positionX, positionZ, gameWorld);
+        zombieControl.distance(new THREE.Vector3(positionX, 0, positionZ));
+        zombieControl.zombieDeath();
+    }
+}
+// console.log(zombies);
     renderer.setViewport(0, 0, window.innerWidth, window.innerHeight);
     renderer.setClearColor(0xffffff); 
 
@@ -2211,10 +1746,7 @@ function animate() {
         insetWidth + borderWidth,
         insetHeight + borderWidth
     );
-//     const playerGeometry = new THREE.BoxGeometry(1, 1, 1);
-// const playerMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-// const player = new THREE.Mesh(playerGeometry, playerMaterial);
-// gameWorld.add(player);
+
 renderer.setClearColor(0x000000);
     renderer.render(gameWorld, cameraTop);
 
@@ -2234,11 +1766,6 @@ function resize(){
     camera.updateProjectionMatrix();
 
     renderer.setSize(window.innerWidth, window.innerHeight);
-    // healthIndicator.position.set(-aspect * 5 - 10, aspect * 5 - 0.6, -10); // 10cm to the left, 3cm lower
-    // shieldIndicator.position.set(-aspect * 5 - 10.5, aspect * 4.7 - 0.6, -10.5);
-
-    // healthIndicator.scale.set(window.innerWidth / 500, window.innerWidth / 500, 1);
-    // shieldIndicator.scale.set(window.innerWidth / 500, window.innerWidth / 500, 1);
 
     insetWidth = window.innerHeight / 3;
     insetHeight = window.innerHeight / 3;
@@ -2256,16 +1783,15 @@ startButton.addEventListener('click', () => {
  
   
   initScene();
-  // This function starts the scene
   playShootingSound();
   displayScore();
   playOtherSound();
-  // createBloodSplatter();
-  // updateDisplayedWeapon();
-  
-// Play shooting sound when button is pressed
+
 });
 window.addEventListener("resize", resize);
+
+
+
 // CONTROLS
 const orbitControls = new OrbitControls(camera, renderer.domElement);
 orbitControls.enableDamping = true;

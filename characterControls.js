@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import * as CANNON from "cannon-es";
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { A, D, DIRECTIONS, S, W } from './utils';
+import { ZombieControl } from './zombieControl';
 
 export class CharacterControls {
 
@@ -9,9 +10,16 @@ export class CharacterControls {
         this.physicsObject = physicsObject;
         this.cameraTop = cameraTop;
         this.firing = false;
+        this.isHit = false;
+        this.dead = false;
+        this.fireWalk = false;
+        this.death = false;
+        this.isHit = false;
+        this.dead = false;
+        this.death = false;
         this.bullets = [];
         this.bulletSpeed = 40;
-
+       
         this.model = model;
         this.mixer = mixer;
         this.animationsMap = animationsMap;
@@ -28,6 +36,7 @@ export class CharacterControls {
         this.orbitControl = orbitControl;
         this.camera = camera;
         this.updateCameraTarget(0, 0);
+        this.updateCameraTarget(0, 0);
 
         this.animationsMap.forEach((value, key) => {
             if (key == currentAction) {
@@ -40,27 +49,50 @@ export class CharacterControls {
         this.toggleRun = !this.toggleRun;
     }
 
-    switchToFire(){
+    DeathPlay() {
+        this.dead = true;
+        setTimeout(() => {
+            this.model.visible = false;
+        }, 3000);
+        
+    }
+
+    DeathPlay() {
+        this.dead = true;
+        setTimeout(() => {
+            this.model.visible = false;
+        }, 3000);
+    }
+
+    isDead() {
+        return this.dead;
+    }
+    switchToFire() {
         this.firing = true;
     }
+
+    hit(zombieHit) {
+        if (zombieHit) {
+            this.isHit = true; // Play the hit animation
+        }
+        else {
+            this.isHit = false;
+        }
+    }
+
     stopFire(){
         this.firing = false;
     }
 
     updateBullets(delta, scene){
-        // console.log(this.bullets.length);
         for(let i = 0; i < this.bullets.length; i++){
-            // const distance = Math.sqrt(Math.pow(this.bullets[i].position.x - this.model.position.x, 2) - Math.pow(this.bullets[i].position.z - this.model.position.z, 2));
 
             if (this.bullets[i].position.x > 100 || this.bullets[i].position.x < -100){
-                // console.log("small");
                 scene.remove(this.bullets[i]);
-                // this.bullets.slice(1,i);
             }
+
             if (this.bullets[i].position.z > 100 || this.bullets[i].position.x < -100){
-                // console.log("small");
                 scene.remove(this.bullets[i]);
-                // this.bullets.slice(1,i);
             }
 
             const bulletDirection = new THREE.Vector3();
@@ -78,11 +110,11 @@ export class CharacterControls {
         return this.bullets;
     }
 
-    getPositionZ(){
+    getPositionZ() {
         return this.model.position.z;
     }
 
-    getPositionX(){
+    getPositionX() {
         return this.model.position.x;
     }
 
@@ -91,18 +123,30 @@ export class CharacterControls {
     }
 
     update(delta, keysPressed) {
+        // Check if the character is disabled before updating
+        if (!this.disabled) {
         const directionPressed = DIRECTIONS.some(key => keysPressed[key] === true);
 
         var play = '';
-        if (directionPressed && this.toggleRun) {
+        if (this.dead) {
+            play = 'Shot';
+        }
+       else if (directionPressed && this.toggleRun) {
             play = 'Run';
         } 
         else if (directionPressed) {
-            play = 'Walk';
+            if( this.firing){
+                play = 'FiringWalk';
+            } else {
+                play = 'Walk';
+            }
         } 
+        else if (this.isHit){
+            play = 'hit';
+        }
         else if (this.firing){
             play = 'Firing';
-        }
+        } 
         else {
             play = 'Idle';
         }
@@ -111,68 +155,77 @@ export class CharacterControls {
             const toPlay = this.animationsMap.get(play);
             const current = this.animationsMap.get(this.currentAction);
 
+            if (current === this.animationsMap.get("Shot")){
+                // Ensure the animation doesn't loop by clamping when finished
+                current.clampWhenFinished = true;
+                // Set the loop mode to play only once
+                current.setLoop(THREE.LoopOnce);
+                // Pause the animation after playing once
+                current.timeScale = 0; // Set the timeScale to 0 to pause the animation
+            } else {
+                // For other animations, reset timeScale to 1 to play normally
+                current.timeScale = 1;
+            }
+
             current.fadeOut(this.fadeDuration);
             toPlay.reset().fadeIn(this.fadeDuration).play();
-
             this.currentAction = play;
         }
 
-        this.mixer.update(delta);
+            this.mixer.update(delta);
 
-        if (this.currentAction == 'Run' || this.currentAction == 'Walk') {
+            if (this.currentAction == 'Run' || this.currentAction == 'Walk' || this.currentAction == 'FiringWalk') {
             var angleYCameraDirection = Math.atan2(
                 this.camera.position.x - this.model.position.x,
                 this.camera.position.z - this.model.position.z,
             );
 
-            var directionOffset = this.directionOffset(keysPressed);
+                var directionOffset = this.directionOffset(keysPressed);
 
-            this.rotateQuarternion.setFromAxisAngle(
-                this.rotateAngle,
-                angleYCameraDirection + directionOffset
-            );
+                this.rotateQuarternion.setFromAxisAngle(
+                    this.rotateAngle,
+                    angleYCameraDirection + directionOffset
+                );
 
-            this.model.quaternion.rotateTowards(this.rotateQuarternion, 0.2);
+                this.model.quaternion.rotateTowards(this.rotateQuarternion, 0.2);
 
             this.camera.getWorldDirection(this.walkDirection);
             // this.walkDirection.y = 0;
             this.walkDirection.normalize();
             this.walkDirection.applyAxisAngle(this.rotateAngle, directionOffset);
 
-            const velocity = this.currentAction == 'Run' ? this.runVelocity : this.walkVelocity;
+                const velocity = this.currentAction == 'Run' ? this.runVelocity : this.walkVelocity;
 
             const moveX = this.walkDirection.x * velocity * delta;
             const moveZ = this.walkDirection.z * velocity * delta;
-            
-            // let cc = this.physicsObject.position.x;
-            // let ccy = this.physicsObject.position.z; 
+
             this.physicsObject.position.x -= moveX;
             this.physicsObject.position.z -= moveZ;
             this.model.position.x = this.physicsObject.position.x;
             this.model.position.z = this.physicsObject.position.z;
             this.model.position.y = this.physicsObject.position.y - 1;
-            // this.model.quaternion.copy(this.phy.quaternion);
-            
-            // if (cc - this.physicsObject.position.x != 0 || ccy - this.physicsObject.position.z != 0){
-                this.updateCameraTarget(moveX, moveZ);
+            this.updateCameraTarget(moveX, moveZ);
                 
-            // }
+            }
         }
     }
 
     updateCameraTarget(moveX, moveZ) {
+    updateCameraTarget(moveX, moveZ) {
         this.camera.position.x -= moveX;
         this.camera.position.z -= moveZ;
-        this.camera.position.y = this.model.position.y + 5;
+        this.camera.position.y = this.model.position.y + 4.;
 
         this.cameraTop.position.z -= moveZ;
         this.cameraTop.position.x -= moveX;
 
         this.cameraTarget.x = this.model.position.x;
-        this.cameraTarget.y = this.model.position.y + 1;
+        this.cameraTarget.y = this.model.position.y + 3;
+        this.cameraTarget.y = this.model.position.y + 3;
         this.cameraTarget.z = this.model.position.z;
         this.orbitControl.target = this.cameraTarget;
     }
+
 
 
     directionOffset(keysPressed) {
@@ -201,11 +254,11 @@ export class CharacterControls {
         return directionOffset;
     }
 
-    shooting(){
+    shooting() {
         const geometry = new THREE.CylinderGeometry(0.01, 0.01, 0.05, 32);
         geometry.rotateX(Math.PI / 2);
         geometry.rotateY(Math.PI / 2);
-        const material = new THREE.MeshBasicMaterial({color: 'gold'});
+        const material = new THREE.MeshBasicMaterial({ color: 'gold' });
         const bullet = new THREE.Mesh(geometry, material);
 
         var angleYCameraDirection = Math.atan2(
@@ -213,7 +266,7 @@ export class CharacterControls {
             this.camera.position.z - this.model.position.z
         );
 
-        bullet.position.set(this.model.position.x, 2.28 , this.model.position.z);
+        bullet.position.set(this.model.position.x, 2.28, this.model.position.z);
         bullet.quaternion.setFromAxisAngle(this.rotateAngle, angleYCameraDirection - (Math.PI / 2));
         this.bullets.push(bullet);
         return bullet;
