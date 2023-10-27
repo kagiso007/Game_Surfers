@@ -1,9 +1,7 @@
 import * as THREE from 'three';
-let score = 0;
-let width = 185;
 
 export class ZombieControl {
- 
+
     constructor(model, mixer, animationsMap, currentAction, physicsObject, bullets) {
         this.physicsObject = physicsObject;
         this.death = false;
@@ -11,7 +9,7 @@ export class ZombieControl {
         this.toggleRun = false;
         this.died = false;
         this.bullets = bullets;
-        
+
         this.model = model;
         this.mixer = mixer;
         this.animationsMap = animationsMap;
@@ -19,10 +17,9 @@ export class ZombieControl {
         this.walkDirection = new THREE.Vector3();
         this.rotateAngle = new THREE.Vector3(0, 1, 0);
         this.rotateQuarternion = new THREE.Quaternion();
-        this.fadeDuration = 0.5;
+        this.fadeDuration = 0.2;
         this.runVelocity = 15;
-        this.walkVelocity = 1;
-
+        this.walkVelocity = 0.5;
 
         this.animationsMap.forEach((value, key) => {
             if (key == currentAction) {
@@ -30,47 +27,25 @@ export class ZombieControl {
             }
         });
     }
-  
     distance(position){
-        //reference the health bar
-        const separateBar = document.getElementById('separate-bar');
-      
         const currentPosition = this.model.position.clone();
         const distance = currentPosition.distanceTo(position);
 
         if (distance < 2) {
-
             this.attack = true;
-            //decrease the width of the health bar by 1 when the zombie is within range
-            if(this.died){
-                width -= 0;
-                separateBar.style.width = width + 'px';
-            }
-            else{
-                width -= 1;
-                separateBar.style.width = width + 'px';
-            }
-            
-            separateBar.style.width = width + 'px';
             this.toggleRun = false;
-           
         }
-        // else if (distance < 50){
-        //     this.toggleRun = true;
-        // }
-
+        else if (distance < 50){
+            this.toggleRun = true;
+        }
         else{
             this.attack = false;
             this.toggleRun = false;
         }
         
     }
-   
-    zombieDeath(){
-        //reference the score
-        const scoreElement = document.getElementById('score');
-        
 
+    zombieDeath(){
         for(let i = 0; i < this.bullets.length; i++){
             const currentPosition = this.model.position.clone();
             const position = this.bullets[i].position.clone();
@@ -80,49 +55,37 @@ export class ZombieControl {
                 this.death = false;
                 this.attack = false;
                 this.toggleRun = false;
-                setTimeout(() => {
-                    this.model.visible = false;
-                }, 3000);
-        
-             }
+            }
             else if (distance < 5){
                 this.attack = false;
                 this.toggleRun = false;
                 this.death = true;
-                //if the zombie is killed then the score increments by 1
-                score += 1;
-                scoreElement.textContent = score;
             }
         }
     }
-   
-      update(delta, userPositionX, userPositionZ, gameWorld) {
+
+    update(delta, userPositionX, userPositionZ) {
+
         var play = '';
         if (this.toggleRun) {
-            play = 'Running';
+            play = 'Zombie_Run';
         } 
         else if (this.death) {
-            play = 'Dying';
+            play = 'Zombie_Death';
         } 
         else if (this.died) {
-            play = 'Died';
+            play = 'Zombie_Died';
         } 
         else if (this.attack){
-            play = 'Attack';
+            play = 'Zombie_Attack_Armature';
         }
         else {
-            play = 'Walking';
-
+            play = 'Zombie_Walk';
         }
 
         if (this.currentAction != play) {
             const toPlay = this.animationsMap.get(play);
             const current = this.animationsMap.get(this.currentAction);
-
-            if(current === this.animationsMap.get("Dying")){
-                current.setLoop(THREE.LoopOnce);
-            }
-            current.crossFadeTo(toPlay, this.fadeDuration);
 
             current.fadeOut(this.fadeDuration);
             toPlay.reset().fadeIn(this.fadeDuration).play();
@@ -131,9 +94,8 @@ export class ZombieControl {
         }
 
         this.mixer.update(delta);
-        
-        if (this.currentAction == 'Running' || this.currentAction == 'Walking') {
 
+        if (this.currentAction == 'Zombie_Run' || this.currentAction == 'Zombie_Walk') {
             var angleYCameraDirection = Math.atan2(
                 userPositionX - this.model.position.x,
                 userPositionZ - this.model.position.z
@@ -164,5 +126,4 @@ export class ZombieControl {
             this.model.position.z = this.physicsObject.position.z;
         }
     }
-  
 }
