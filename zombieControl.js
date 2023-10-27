@@ -1,4 +1,8 @@
 import * as THREE from 'three';
+let score = 0;
+let width = 185;
+let isReplayButtonClicked = false;
+// import { CharacterControls } from './characterControls';
 
 export class ZombieControl {
 
@@ -9,6 +13,7 @@ export class ZombieControl {
         this.toggleRun = false;
         this.died = false;
         this.bullets = bullets;
+        // this.hit = false;
 
         this.model = model;
         this.mixer = mixer;
@@ -28,11 +33,14 @@ export class ZombieControl {
         });
     }
     distance(position){
+        const seperateBar = document.getElementById('separate-bar');
         const currentPosition = this.model.position.clone();
         const distance = currentPosition.distanceTo(position);
 
         if (distance < 2) {
             this.attack = true;
+            width -= 1;
+            seperateBar.style.width = width + 'px';
             this.toggleRun = false;
         }
         else if (distance < 50){
@@ -43,6 +51,10 @@ export class ZombieControl {
             this.toggleRun = false;
         }
         
+    }
+
+    isAttack(){
+        return this.attack;
     }
 
     zombieDeath(){
@@ -117,9 +129,7 @@ export class ZombieControl {
 
             const moveX = this.walkDirection.x * velocity * delta;
             const moveZ = this.walkDirection.z * velocity * delta;
-            
-            // let cc = this.physicsObject.position.x;
-            // let ccy = this.physicsObject.position.z; 
+        
             this.physicsObject.position.x += moveX
             this.physicsObject.position.z += moveZ
             this.model.position.x = this.physicsObject.position.x;
