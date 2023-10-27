@@ -115,6 +115,7 @@ function model(){
     physicsWorld.addBody(cylinderPhysicsWorld);
 
     new GLTFLoader().load('eve.glb', function (gltf) {
+    new GLTFLoader().load('eve.glb', function (gltf) {
         const model = gltf.scene;
         model.traverse(function (object) {
             if (object.isMesh) object.castShadow = true;
@@ -127,6 +128,7 @@ function model(){
         const animationsMap = new Map();
         gltfAnimations.forEach((a) => {
             animationsMap.set(a.name, mixer.clipAction(a));
+            console.log(a.name);
             console.log(a.name);
         });
         characterControls = new CharacterControls(model, mixer, animationsMap, orbitControls, camera, 'Idle', cylinderPhysicsWorld, cameraTop);
@@ -143,11 +145,11 @@ function zombie(){
             mass: 10,
             shape: cylinder, 
         });
-        cylinderPhysicsWorld1.position.set(-40 + (40 * i),0,-40);
+        cylinderPhysicsWorld1.position.set(Math.floor(Math.random() * ((100 - (-100) + 1) - 100)), 100, Math.floor(Math.random() * ((100 - (-100) + 1) - 100)));
         
         cylinderPhysicsWorld1.angularFactor.set(0,0,0);
         physicsWorld.addBody(cylinderPhysicsWorld1);
-    
+
         new GLTFLoader().load('zombie.glb', function (gltf) {
             const model = gltf.scene;
             model.traverse(function (object) {
@@ -162,12 +164,17 @@ function zombie(){
             gltfAnimations.forEach((a) => {
                 animationsMap.set(a.name, mixer.clipAction(a));
                 // console.log(a.name);
+                // console.log(a.name);
             });
             const zombieControl = new ZombieControl(model, mixer, animationsMap, 'Walking', cylinderPhysicsWorld1, bullets);
             zombies.push(zombieControl);
+            zombiesReady = true
+            hideLoadingScreen();
         });
     }
 }
+
+
 
 const keysPressed = {};
 const keyDisplayQueue = new KeyDisplay();
@@ -1530,7 +1537,7 @@ buildings();
 parking();
 extras();
 model();
-zombie();
+// zombie(2);
 
 
 
@@ -1583,7 +1590,10 @@ function animate() {
     overlayHeading.style.position = 'absolute';
     overlayHeading.style.left = '130px';
     if(overlayHeading.textContent=='Vigilante Vanguard'){
-    overlayHeading.textContent = 'Level 1'; }
+        overlayHeading.textContent = 'Level 1'; 
+        zombie(2);
+    }
+    // createZombie();
     //get references for each button,icon,text element
     const pauseButton = document.getElementById('pauseButton');
     const playButton = document.getElementById('otherButton');
@@ -1607,16 +1617,20 @@ function animate() {
 
 
   //if score is 2, then move to Level 2
-if(scoreElement.textContent==2){
+if(scoreElement.textContent==2 && overlayHeading.textContent === 'Level 1'){
     overlayHeading.textContent = 'Level 2'; 
     KillElement.textContent = 'Mission : Kill 4 zombies';
+    zombie(4);
+    // scoreElement.textContent = 0;
 }
   //if score is 6 then move to level 3
-if(scoreElement.textContent==4){
+if(scoreElement.textContent==6 && overlayHeading.textContent === 'Level 2'){
     overlayHeading.textContent = 'Level 3'; 
     KillElement.textContent = 'Mission : Kill 6 zombies';
+    // scoreElement.textContent = 0;
+    zombie(5);
 }
-if(scoreElement.textContent==6){
+if(scoreElement.textContent==12 && overlayHeading.textContent === 'Level 3'){
     overlayHeading.textContent = 'WINNER'; 
 
 }
@@ -1705,8 +1719,8 @@ if (characterControls && isButtonClicked==false) {
         zombieControl.distance(new THREE.Vector3(positionX, 0, positionZ));
         zombieControl.zombieDeath();
     }
-  }
-
+}
+// console.log(zombies);
     renderer.setViewport(0, 0, window.innerWidth, window.innerHeight);
     renderer.setClearColor(0xffffff); 
 

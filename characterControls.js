@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import * as CANNON from "cannon-es";
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { A, D, DIRECTIONS, S, W } from './utils';
+import { ZombieControl } from './zombieControl';
 
 export class CharacterControls {
 
@@ -9,6 +10,10 @@ export class CharacterControls {
         this.physicsObject = physicsObject;
         this.cameraTop = cameraTop;
         this.firing = false;
+        this.isHit = false;
+        this.dead = false;
+        this.fireWalk = false;
+        this.death = false;
         this.isHit = false;
         this.dead = false;
         this.death = false;
@@ -31,6 +36,7 @@ export class CharacterControls {
         this.orbitControl = orbitControl;
         this.camera = camera;
         this.updateCameraTarget(0, 0);
+        this.updateCameraTarget(0, 0);
 
         this.animationsMap.forEach((value, key) => {
             if (key == currentAction) {
@@ -51,7 +57,17 @@ export class CharacterControls {
         
     }
 
-    switchToFire(){
+    DeathPlay() {
+        this.dead = true;
+        setTimeout(() => {
+            this.model.visible = false;
+        }, 3000);
+    }
+
+    isDead() {
+        return this.dead;
+    }
+    switchToFire() {
         this.firing = true;
     }
 
@@ -94,11 +110,11 @@ export class CharacterControls {
         return this.bullets;
     }
 
-    getPositionZ(){
+    getPositionZ() {
         return this.model.position.z;
     }
 
-    getPositionX(){
+    getPositionX() {
         return this.model.position.x;
     }
 
@@ -156,7 +172,7 @@ export class CharacterControls {
             this.currentAction = play;
         }
 
-        this.mixer.update(delta);
+            this.mixer.update(delta);
 
             if (this.currentAction == 'Run' || this.currentAction == 'Walk' || this.currentAction == 'FiringWalk') {
             var angleYCameraDirection = Math.atan2(
@@ -164,21 +180,21 @@ export class CharacterControls {
                 this.camera.position.z - this.model.position.z,
             );
 
-            var directionOffset = this.directionOffset(keysPressed);
+                var directionOffset = this.directionOffset(keysPressed);
 
-            this.rotateQuarternion.setFromAxisAngle(
-                this.rotateAngle,
-                angleYCameraDirection + directionOffset
-            );
+                this.rotateQuarternion.setFromAxisAngle(
+                    this.rotateAngle,
+                    angleYCameraDirection + directionOffset
+                );
 
-            this.model.quaternion.rotateTowards(this.rotateQuarternion, 0.2);
+                this.model.quaternion.rotateTowards(this.rotateQuarternion, 0.2);
 
             this.camera.getWorldDirection(this.walkDirection);
             // this.walkDirection.y = 0;
             this.walkDirection.normalize();
             this.walkDirection.applyAxisAngle(this.rotateAngle, directionOffset);
 
-            const velocity = this.currentAction == 'Run' ? this.runVelocity : this.walkVelocity;
+                const velocity = this.currentAction == 'Run' ? this.runVelocity : this.walkVelocity;
 
             const moveX = this.walkDirection.x * velocity * delta;
             const moveZ = this.walkDirection.z * velocity * delta;
@@ -195,6 +211,7 @@ export class CharacterControls {
     }
 
     updateCameraTarget(moveX, moveZ) {
+    updateCameraTarget(moveX, moveZ) {
         this.camera.position.x -= moveX;
         this.camera.position.z -= moveZ;
         this.camera.position.y = this.model.position.y + 4.;
@@ -204,9 +221,11 @@ export class CharacterControls {
 
         this.cameraTarget.x = this.model.position.x;
         this.cameraTarget.y = this.model.position.y + 3;
+        this.cameraTarget.y = this.model.position.y + 3;
         this.cameraTarget.z = this.model.position.z;
         this.orbitControl.target = this.cameraTarget;
     }
+
 
 
     directionOffset(keysPressed) {
@@ -235,11 +254,11 @@ export class CharacterControls {
         return directionOffset;
     }
 
-    shooting(){
+    shooting() {
         const geometry = new THREE.CylinderGeometry(0.01, 0.01, 0.05, 32);
         geometry.rotateX(Math.PI / 2);
         geometry.rotateY(Math.PI / 2);
-        const material = new THREE.MeshBasicMaterial({color: 'gold'});
+        const material = new THREE.MeshBasicMaterial({ color: 'gold' });
         const bullet = new THREE.Mesh(geometry, material);
 
         var angleYCameraDirection = Math.atan2(
@@ -247,7 +266,7 @@ export class CharacterControls {
             this.camera.position.z - this.model.position.z
         );
 
-        bullet.position.set(this.model.position.x, 2.28 , this.model.position.z);
+        bullet.position.set(this.model.position.x, 2.28, this.model.position.z);
         bullet.quaternion.setFromAxisAngle(this.rotateAngle, angleYCameraDirection - (Math.PI / 2));
         this.bullets.push(bullet);
         return bullet;

@@ -66,10 +66,9 @@ export class ZombieControl {
         
     }
    
-    zombieDeath(){
+    zombieDeath(gameWorld, index, zombies){
         //reference the score
         const scoreElement = document.getElementById('score');
-        
 
         for(let i = 0; i < this.bullets.length; i++){
             const currentPosition = this.model.position.clone();
@@ -82,8 +81,15 @@ export class ZombieControl {
                 this.toggleRun = false;
                 setTimeout(() => {
                     this.model.visible = false;
-                }, 3000);
-        
+                    gameWorld.remove(this.model);
+                    // zombies.splice(index, 1);
+                    this.model.traverse(child => {
+                        if (child.isMesh) {
+                            child.geometry.dispose();
+                            child.material.dispose();
+                        }
+                    });
+                }, 5000);
              }
             else if (distance < 5){
                 this.attack = false;
